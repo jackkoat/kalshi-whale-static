@@ -1,0 +1,268 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
+
+/* KalshiWhale Custom Styles */
+
+/* Base layer: Reset and typography */
+@layer base {
+  * {
+    @apply border-border;
+  }
+  
+  body {
+    @apply bg-white text-neutral-900 font-sans antialiased;
+    font-feature-settings: 'cv11', 'ss01';
+    font-variation-settings: 'opsz' 32;
+    scroll-behavior: smooth;
+  }
+
+  /* Selection styles */
+  ::selection {
+    @apply bg-brand-green-light text-brand-green-deep;
+  }
+
+  /* Scrollbar styling */
+  ::-webkit-scrollbar {
+    @apply w-2;
+  }
+
+  ::-webkit-scrollbar-track {
+    @apply bg-gray-50;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    @apply bg-gray-200 rounded-full;
+  }
+
+  ::-webkit-scrollbar-thumb:hover {
+    @apply bg-gray-300;
+  }
+
+  /* Focus styles for accessibility */
+  .focus-ring {
+    @apply focus:outline-none focus:ring-2 focus:ring-brand-green-primary focus:ring-offset-2 focus:ring-offset-white;
+  }
+}
+
+/* Component layer: Custom components */
+@layer components {
+  /* Glass Card Component */
+  .glass-card {
+    @apply bg-white/80 backdrop-blur-sm border border-white/20 rounded-xl;
+    @apply shadow-glass-sm hover:shadow-glass-md transition-all duration-300;
+  }
+
+  .glass-card-hover {
+    @apply hover:shadow-glass-lg hover:bg-white/90 hover:border-white/30;
+    @apply hover:-translate-y-1 transition-all duration-300;
+  }
+
+  /* YES/NO Pill Buttons - Kalshi Style */
+  .pill-button-yes {
+    @apply inline-flex items-center justify-center px-4 py-2 rounded-full;
+    @apply bg-gradient-to-r from-green-500 to-emerald-600;
+    @apply text-white font-medium text-sm;
+    @apply hover:from-green-600 hover:to-emerald-700;
+    @apply focus-ring transition-all duration-200;
+    @apply shadow-sm hover:shadow-md;
+  }
+
+  .pill-button-no {
+    @apply inline-flex items-center justify-center px-4 py-2 rounded-full;
+    @apply bg-gray-100 text-gray-700 font-medium text-sm;
+    @apply hover:bg-gray-200 hover:text-gray-900;
+    @apply focus-ring transition-all duration-200;
+    @apply border border-gray-200;
+  }
+
+  /* Market Card */
+  .market-card {
+    @apply glass-card p-6 space-y-4;
+    @apply glass-card-hover cursor-pointer;
+  }
+
+  .market-card-header {
+    @apply flex items-start justify-between;
+  }
+
+  .market-card-title {
+    @apply text-lg font-semibold text-neutral-900 leading-tight;
+  }
+
+  .market-card-meta {
+    @apply flex items-center space-x-2 text-sm text-neutral-500;
+  }
+
+  /* Whale Signal Cards */
+  .whale-signal-card {
+    @apply glass-card p-4 border-l-4;
+    @apply animate-fade-in;
+  }
+
+  .whale-signal-high {
+    @apply border-l-amber-500 bg-amber-50/50;
+  }
+
+  .whale-signal-medium {
+    @apply border-l-blue-500 bg-blue-50/50;
+  }
+
+  .whale-signal-low {
+    @apply border-l-green-500 bg-green-50/50;
+  }
+
+  /* Live Status Indicator */
+  .live-indicator {
+    @apply inline-flex items-center space-x-2;
+  }
+
+  .live-dot {
+    @apply w-2 h-2 bg-red-500 rounded-full;
+    @apply animate-pulse;
+  }
+
+  /* Trending Badge */
+  .trending-badge {
+    @apply inline-flex items-center px-2 py-1 rounded-full;
+    @apply bg-green-100 text-green-800 text-xs font-medium;
+    @apply animate-pulse-slow;
+  }
+
+  /* Data Grid */
+  .data-grid {
+    @apply grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4;
+    @apply gap-4 lg:gap-6;
+  }
+
+  /* Status Colors */
+  .status-positive {
+    @apply text-green-600 bg-green-50;
+  }
+
+  .status-negative {
+    @apply text-red-600 bg-red-50;
+  }
+
+  .status-neutral {
+    @apply text-gray-600 bg-gray-50;
+  }
+
+  /* Typography helpers */
+  .text-gradient {
+    @apply bg-gradient-to-r from-brand-green-primary to-brand-green-deep;
+    @apply bg-clip-text text-transparent;
+  }
+
+  /* Number formatting */
+  .number-display {
+    @apply font-numbers tabular-nums;
+    font-variant-numeric: tabular-nums;
+  }
+
+  /* Loading states */
+  .loading-shimmer {
+    @apply animate-pulse bg-gray-200 rounded;
+  }
+
+  .loading-spinner {
+    @apply animate-spin rounded-full border-2 border-gray-200 border-t-brand-green-primary;
+  }
+}
+
+/* Utility layer: Custom utilities */
+@layer utilities {
+  /* Glass morphism utilities */
+  .backdrop-blur-glass {
+    backdrop-filter: blur(8px) saturate(180%);
+    background-color: rgba(255, 255, 255, 0.75);
+  }
+
+  .backdrop-blur-card {
+    backdrop-filter: blur(12px) saturate(180%);
+    background-color: rgba(255, 255, 255, 0.8);
+  }
+
+  /* Text shadow for better readability on gradients */
+  .text-shadow-sm {
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+  }
+
+  /* Custom spacing */
+  .space-y-card {
+    @apply space-y-4;
+  }
+
+  .space-y-card-lg {
+    @apply space-y-6;
+  }
+
+  /* Responsive grid utilities */
+  .grid-responsive {
+    @apply grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5;
+  }
+
+  .grid-responsive-auto {
+    @apply grid grid-cols-[repeat(auto-fit,minmax(280px,1fr))];
+  }
+
+  /* Animation utilities */
+  .animate-fade-in-up {
+    animation: fadeInUp 0.5s ease-out;
+  }
+
+  .animate-scale-in {
+    animation: scaleIn 0.3s ease-out;
+  }
+
+  @keyframes fadeInUp {
+    from {
+      opacity: 0;
+      transform: translateY(20px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  @keyframes scaleIn {
+    from {
+      opacity: 0;
+      transform: scale(0.95);
+    }
+    to {
+      opacity: 1;
+      transform: scale(1);
+    }
+  }
+
+  /* Print styles */
+  @media print {
+    .no-print {
+      display: none !important;
+    }
+  }
+}
+
+/* Dark mode support (future enhancement) */
+@media (prefers-color-scheme: dark) {
+  /* Reserved for dark mode implementation */
+}
+
+/* High contrast mode support */
+@media (prefers-contrast: high) {
+  .glass-card {
+    @apply border-2 border-gray-300;
+  }
+  
+  .pill-button-yes {
+    @apply border-2 border-green-600;
+  }
+  
+  .pill-button-no {
+    @apply border-2 border-gray-600;
+  }
+}

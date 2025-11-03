@@ -1,42 +1,66 @@
 {
-    "name": "kalshi-whale-backend",
-    "version": "1.0.0",
-    "description": "Real-time Crypto Whale Tracker Backend for Kalshi Prediction Markets",
-    "main": "main.py",
+    "name": "kalshiwhale",
+    "version": "2.0.0",
+    "description": "Institutional-grade crypto intelligence platform for Kalshi Prediction Markets",
+    "private": true,
     "scripts": {
-        "start": "python main.py",
-        "dev": "python main.py",
-        "test": "python -m pytest tests/",
-        "lint": "python -m flake8 main.py",
-        "format": "python -m black main.py"
+        "dev": "next dev",
+        "build": "next build", 
+        "start": "next start",
+        "lint": "next lint",
+        "type-check": "tsc --noEmit",
+        "backend": "python main.py"
     },
     "keywords": [
-        "fastapi",
-        "websocket",
+        "nextjs",
+        "react",
+        "typescript",
         "crypto",
+        "prediction-markets",
         "whale-tracker",
         "kalshi",
-        "real-time"
+        "real-time",
+        "institutional"
     ],
     "author": "MiniMax Agent",
     "license": "MIT",
     "dependencies": {
+        "@tanstack/react-query": "^5.17.0",
+        "next": "14.1.0",
+        "react": "^18.2.0",
+        "react-dom": "^18.2.0",
+        "typescript": "^5.3.3",
+        "tailwindcss": "^3.4.1",
+        "autoprefixer": "^10.4.17",
+        "postcss": "^8.4.33",
+        "@headlessui/react": "^1.7.17",
+        "@heroicons/react": "^2.0.18",
+        "framer-motion": "^10.16.16",
+        "recharts": "^2.10.3",
+        "clsx": "^2.1.0",
+        "class-variance-authority": "^0.7.0",
+        "lucide-react": "^0.323.0",
+        "react-use": "^17.5.0",
+        "zustand": "^4.4.7",
+        "date-fns": "^3.3.1",
+        "ws": "^8.16.0",
         "fastapi": "^0.104.1",
         "uvicorn": "^0.24.0",
-        "websockets": "^12.0",
-        "requests": "^2.31.0",
-        "python-multipart": "^0.0.6",
-        "jinja2": "^3.1.2",
-        "aiofiles": "^23.2.1",
-        "python-dotenv": "^1.0.0",
-        "pydantic": "^2.5.0"
+        "requests": "^2.31.0"
     },
     "devDependencies": {
+        "@types/node": "^20.11.5",
+        "@types/react": "^18.2.48",
+        "@types/react-dom": "^18.2.18",
+        "@types/ws": "^8.5.10",
+        "eslint": "^8.56.0",
+        "eslint-config-next": "14.1.0",
         "pytest": "^7.4.3",
         "flake8": "^6.1.0",
         "black": "^23.11.0"
     },
     "engines": {
+        "node": ">=18.0.0",
         "python": ">=3.8"
     }
 }

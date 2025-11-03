@@ -1,0 +1,275 @@
+// Core types for KalshiWhale platform
+
+export interface Market {
+  id: string;
+  question: string;
+  category: string;
+  last_update: string;
+  volume: number;
+  cadence: string;
+  trending: boolean;
+  outcomes: Outcome[];
+  high_volume: boolean;
+  trending: boolean;
+  high_liquidity: boolean;
+  recent: boolean;
+  status: 'open' | 'closed' | 'expired';
+  expiry_date?: string;
+  liquidity?: number;
+  volume_millions?: number;
+  ticker_symbol?: string;
+}
+
+export interface Outcome {
+  title: 'YES' | 'NO';
+  description: string;
+  probability: number;
+  odds?: number;
+  volume?: number;
+}
+
+export interface WhaleSignal {
+  id: string;
+  type: 'volume_surge' | 'odds_flip' | 'order_book_shift' | 'liquidity_cluster';
+  market_id: string;
+  ticker: string;
+  severity: 'high' | 'medium' | 'low';
+  description: string;
+  data: {
+    current_value?: number;
+    previous_value?: number;
+    change_percent?: number;
+    growth_multiple?: number;
+    direction?: 'up' | 'down';
+  };
+  timestamp: string;
+  confidence: number; // 0-100%
+}
+
+export interface MarketMicrostructure {
+  order_book_imbalance: number;
+  notional_volume_spikes: boolean;
+  rapid_odds_flips: boolean;
+  large_directional_bets: boolean;
+  liquidity_cluster_formation: boolean;
+  spread_compression: boolean;
+  volatility_bursts: boolean;
+  volume_probability_divergence: boolean;
+}
+
+export interface MacroEvent {
+  id: string;
+  title: string;
+  category: 'FOMC' | 'CPI' | 'NFP' | 'Fed Speech' | 'Earnings' | 'Economic Data';
+  event_time: string;
+  impact_level: 'High' | 'Medium' | 'Low';
+  related_markets: string[];
+  description?: string;
+  status: 'upcoming' | 'live' | 'completed';
+}
+
+export interface WhaleActivity {
+  market_id: string;
+  ticker: string;
+  activity_type: 'accumulation' | 'distribution' | 'hedge' | 'speculation';
+  size: number;
+  direction: 'long' | 'short' | 'neutral';
+  confidence: number;
+  timestamp: string;
+  market_impact: 'high' | 'medium' | 'low';
+}
+
+export interface CryptoSignal {
+  market_id: string;
+  signal_type: 'regime_shift' | 'momentum' | 'reversion' | 'breakout';
+  strength: number; // 0-100
+  time_horizon: 'intraday' | 'daily' | 'weekly' | 'monthly';
+  conviction_level: number; // 0-100
+  metadata: {
+    volume_profile?: number[];
+    odds_movement?: number[];
+    order_flow?: 'accumulating' | 'distributing' | 'neutral';
+    sentiment?: 'bullish' | 'bearish' | 'neutral';
+  };
+  timestamp: string;
+}
+
+export interface InsightCard {
+  id: string;
+  type: 'macro_alert' | 'whale_detected' | 'signal_strong' | 'pattern_spotted';
+  priority: 'urgent' | 'high' | 'medium' | 'low';
+  title: string;
+  description: string;
+  market_id?: string;
+  ticker?: string;
+  impact_level: 'high' | 'medium' | 'low';
+  action_required: boolean;
+  timestamp: string;
+  read: boolean;
+}
+
+// API Response types
+export interface ApiResponse<T> {
+  data: T;
+  timestamp: string;
+  status: 'success' | 'error';
+  message?: string;
+}
+
+export interface MarketsResponse extends ApiResponse<Market[]> {
+  count: number;
+  filters_applied?: string[];
+}
+
+export interface WhaleAlertsResponse extends ApiResponse<WhaleSignal[]> {
+  count: number;
+  whale_signals_count: number;
+  high_volume_count: number;
+  detection_types: {
+    volume_surge: boolean;
+    odds_flip: boolean;
+    order_book_shift: boolean;
+    high_volume: boolean;
+  };
+  thresholds: {
+    volume_surge_multiplier: number;
+    odds_change_percent: number;
+    order_book_change_percent: number;
+    minimum_volume: number;
+  };
+}
+
+export interface StatusResponse {
+  status: string;
+  timestamp: string;
+  last_update?: string;
+  active_connections: number;
+  total_markets: number;
+  websocket_enabled: boolean;
+  uptime: number;
+  version: string;
+}
+
+// WebSocket message types
+export interface WebSocketMessage {
+  type: 'initial_data' | 'market_update' | 'whale_alerts' | 'heartbeat' | 'insight';
+  data: any;
+  timestamp: string;
+}
+
+export interface MarketUpdate extends WebSocketMessage {
+  type: 'market_update';
+  data: {
+    markets: Market[];
+    timestamp: string;
+    count: number;
+  };
+}
+
+export interface WhaleAlert extends WebSocketMessage {
+  type: 'whale_alerts';
+  data: {
+    alerts: WhaleSignal[];
+    timestamp: string;
+    count: number;
+  };
+}
+
+// UI State types
+export interface UIState {
+  sidebar_open: boolean;
+  filters: {
+    category: string;
+    time_range: string;
+    signal_strength: string;
+  };
+  theme: 'light' | 'dark';
+  notifications: Notification[];
+}
+
+export interface Notification {
+  id: string;
+  type: 'info' | 'success' | 'warning' | 'error';
+  title: string;
+  message: string;
+  timestamp: string;
+  read: boolean;
+  auto_close?: boolean;
+}
+
+// Filter and sorting types
+export interface MarketFilters {
+  category?: string;
+  status?: 'open' | 'closed' | 'expired';
+  volume_min?: number;
+  volume_max?: number;
+  trending_only?: boolean;
+  high_volume_only?: boolean;
+  date_range?: {
+    start: string;
+    end: string;
+  };
+}
+
+export interface SortOptions {
+  field: 'volume' | 'last_update' | 'probability' | 'ticker';
+  direction: 'asc' | 'desc';
+}
+
+// Chart data types
+export interface ChartDataPoint {
+  timestamp: string;
+  value: number;
+  volume?: number;
+  metadata?: Record<string, any>;
+}
+
+export interface ProbabilityChart {
+  market_id: string;
+  data: ChartDataPoint[];
+  timeframes: {
+    '1h': ChartDataPoint[];
+    '4h': ChartDataPoint[];
+    '1d': ChartDataPoint[];
+    '1w': ChartDataPoint[];
+  };
+}
+
+export interface VolumeChart {
+  market_id: string;
+  bids: number[];
+  asks: number[];
+  timestamp: string;
+}
+
+// Performance metrics
+export interface PerformanceMetrics {
+  api_response_time: number;
+  websocket_latency: number;
+  cache_hit_rate: number;
+  error_rate: number;
+  uptime: number;
+  active_users: number;
+}
+
+// Configuration types
+export interface AppConfig {
+  api: {
+    base_url: string;
+    ws_url: string;
+    timeout: number;
+    retry_attempts: number;
+  };
+  ui: {
+    refresh_interval: number;
+    auto_scroll: boolean;
+    animations_enabled: boolean;
+    theme: 'light' | 'dark' | 'system';
+  };
+  alerts: {
+    whale_threshold: number;
+    volume_spike_multiplier: number;
+    odds_change_threshold: number;
+    notifications_enabled: boolean;
+  };
+}
