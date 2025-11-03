@@ -430,6 +430,260 @@
             max-width: 100% !important;
             height: auto !important;
         }
+
+        /* Section Title Row with Filters */
+        .section-title-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 16px;
+        }
+
+        .filter-controls {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .filter-select {
+            padding: 8px 16px;
+            border: 1px solid var(--brand-border);
+            border-radius: 8px;
+            background: white;
+            color: var(--brand-deep);
+            font-size: 0.875rem;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .filter-select:hover {
+            border-color: var(--brand-primary);
+            box-shadow: 0 0 0 3px rgba(26, 174, 111, 0.1);
+        }
+
+        .refresh-btn {
+            padding: 8px;
+            border: 1px solid var(--brand-border);
+            border-radius: 8px;
+            background: white;
+            color: var(--brand-deep);
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .refresh-btn:hover {
+            border-color: var(--brand-primary);
+            color: var(--brand-primary);
+        }
+
+        /* Market Cards Layout */
+        .markets-cards {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .market-card {
+            background: white;
+            border: 1px solid var(--brand-border);
+            border-radius: var(--border-radius);
+            padding: 20px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .market-card:hover {
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
+            transform: translateY(-2px);
+        }
+
+        .market-card-header {
+            display: flex;
+            align-items: flex-start;
+            gap: 16px;
+            margin-bottom: 16px;
+        }
+
+        .market-icon {
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            background: var(--brand-light);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+
+        .market-icon svg {
+            width: 24px;
+            height: 24px;
+            color: var(--brand-primary);
+        }
+
+        .market-content {
+            flex: 1;
+        }
+
+        .market-question {
+            font-size: 1.125rem;
+            font-weight: 600;
+            color: var(--brand-deep);
+            margin-bottom: 8px;
+            line-height: 1.4;
+        }
+
+        .market-meta {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 0.875rem;
+            color: var(--brand-deep);
+            opacity: 0.7;
+        }
+
+        .outcome-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 12px 0;
+            border-bottom: 1px solid var(--brand-border);
+        }
+
+        .outcome-row:last-child {
+            border-bottom: none;
+        }
+
+        .outcome-info {
+            flex: 1;
+        }
+
+        .outcome-title {
+            font-weight: 500;
+            color: var(--brand-deep);
+            margin-bottom: 4px;
+        }
+
+        .outcome-description {
+            font-size: 0.875rem;
+            color: var(--brand-deep);
+            opacity: 0.7;
+        }
+
+        .probability-section {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            min-width: 120px;
+        }
+
+        .probability {
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: var(--brand-primary);
+        }
+
+        .bet-buttons {
+            display: flex;
+            gap: 8px;
+        }
+
+        .bet-btn {
+            padding: 6px 12px;
+            border: 1px solid var(--brand-primary);
+            border-radius: 6px;
+            background: transparent;
+            color: var(--brand-primary);
+            font-size: 0.75rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .bet-btn.yes {
+            background: var(--brand-primary);
+            color: white;
+        }
+
+        .bet-btn:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 2px 4px rgba(26, 174, 111, 0.2);
+        }
+
+        .market-footer {
+            margin-top: 16px;
+            padding-top: 16px;
+            border-top: 1px solid var(--brand-border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .volume-info {
+            font-size: 0.875rem;
+            color: var(--brand-deep);
+            opacity: 0.8;
+        }
+
+        .payout-info {
+            font-size: 0.875rem;
+            font-weight: 500;
+            color: var(--brand-primary);
+        }
+
+        .expand-btn {
+            padding: 6px;
+            border: 1px solid var(--brand-border);
+            border-radius: 50%;
+            background: transparent;
+            color: var(--brand-deep);
+            cursor: pointer;
+            transition: all 0.2s ease;
+            opacity: 0.6;
+        }
+
+        .expand-btn:hover {
+            opacity: 1;
+            border-color: var(--brand-primary);
+            color: var(--brand-primary);
+        }
+
+        @media (max-width: 768px) {
+            .section-title-row {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+            
+            .filter-controls {
+                width: 100%;
+                justify-content: space-between;
+            }
+            
+            .market-card-header {
+                flex-direction: column;
+                align-items: center;
+                text-align: center;
+            }
+            
+            .outcome-row {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 12px;
+            }
+            
+            .probability-section {
+                align-self: stretch;
+                justify-content: space-between;
+            }
+            
+            .market-footer {
+                flex-direction: column;
+                gap: 12px;
+                text-align: center;
+            }
+        }
     </style>
 </head>
 <body>
@@ -505,87 +759,31 @@
             </div>
 
             <!-- Top 5 Markets -->
+            <!-- Top 5 Markets with Card Layout -->
             <div class="main-section">
                 <div class="section-header">
-                    <h2 class="section-title">Top 5 Markets</h2>
+                    <div class="section-title-row">
+                        <h2 class="section-title">Top 5 Kalshi Prediction Markets</h2>
+                        <div class="filter-controls">
+                            <select id="market-filter" class="filter-select" onchange="filterMarkets()">
+                                <option value="all">All Markets</option>
+                                <option value="volume">High Volume</option>
+                                <option value="trending">Trending</option>
+                                <option value="liquidity">High Liquidity</option>
+                                <option value="recent">Recently Active</option>
+                            </select>
+                            <button class="refresh-btn" onclick="refreshMarketData()">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+                                    <path d="M21 12a9 9 0 1 1-2.64-6.36" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                                    <path d="M21 5v6h-6" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                                </svg>
+                            </button>
+                        </div>
+                    </div>
                 </div>
                 
-                <div class="markets-table">
-                    <div class="market-row" data-market="BTC">
-                        <div class="market-info">
-                            <div class="market-icon"></div>
-                            <div class="market-details">
-                                <div class="market-pair">BTC / USD</div>
-                                <div class="market-type">Pool</div>
-                            </div>
-                        </div>
-                        <div class="market-stats">
-                            <svg class="sparkline" viewBox="0 0 72 24">
-                                <path d="M2 18 L14.4 12 L25.2 16 L37.4 8 L50.4 14 L70 10" fill="none" stroke="#1AAE6F" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/>
-                            </svg>
-                            <div class="market-value">$24.8M</div>
-                        </div>
-                    </div>
-                    <div class="market-row" data-market="ETH">
-                        <div class="market-info">
-                            <div class="market-icon"></div>
-                            <div class="market-details">
-                                <div class="market-pair">ETH / USD</div>
-                                <div class="market-type">Pool</div>
-                            </div>
-                        </div>
-                        <div class="market-stats">
-                            <svg class="sparkline" viewBox="0 0 72 24">
-                                <path d="M2 20 L14.4 16 L25.2 18 L37.4 12 L50.4 16 L70 14" fill="none" stroke="#1AAE6F" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/>
-                            </svg>
-                            <div class="market-value">$21.3M</div>
-                        </div>
-                    </div>
-                    <div class="market-row" data-market="SOL">
-                        <div class="market-info">
-                            <div class="market-icon"></div>
-                            <div class="market-details">
-                                <div class="market-pair">SOL / USD</div>
-                                <div class="market-type">Pool</div>
-                            </div>
-                        </div>
-                        <div class="market-stats">
-                            <svg class="sparkline" viewBox="0 0 72 24">
-                                <path d="M2 16 L14.4 14 L25.2 18 L37.4 10 L50.4 12 L70 14" fill="none" stroke="#1AAE6F" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/>
-                            </svg>
-                            <div class="market-value">$12.9M</div>
-                        </div>
-                    </div>
-                    <div class="market-row" data-market="MATIC">
-                        <div class="market-info">
-                            <div class="market-icon"></div>
-                            <div class="market-details">
-                                <div class="market-pair">MATIC / USD</div>
-                                <div class="market-type">Pool</div>
-                            </div>
-                        </div>
-                        <div class="market-stats">
-                            <svg class="sparkline" viewBox="0 0 72 24">
-                                <path d="M2 18 L14.4 16 L25.2 14 L37.4 12 L50.4 10 L70 12" fill="none" stroke="#1AAE6F" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/>
-                            </svg>
-                            <div class="market-value">$7.1M</div>
-                        </div>
-                    </div>
-                    <div class="market-row" data-market="USDT">
-                        <div class="market-info">
-                            <div class="market-icon"></div>
-                            <div class="market-details">
-                                <div class="market-pair">USDT / USD</div>
-                                <div class="market-type">Pool</div>
-                            </div>
-                        </div>
-                        <div class="market-stats">
-                            <svg class="sparkline" viewBox="0 0 72 24">
-                                <path d="M2 20 L14.4 18 L25.2 16 L37.4 14 L50.4 16 L70 18" fill="none" stroke="#1AAE6F" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/>
-                            </svg>
-                            <div class="market-value">$5.5M</div>
-                        </div>
-                    </div>
+                <div class="markets-cards" id="markets-cards">
+                    <!-- Market cards will be populated by JavaScript -->
                 </div>
             </div>
 
@@ -626,6 +824,7 @@
             connectWebSocket();
             startAutoRefresh();
             loadWhaleAnalytics();
+            loadMarketCards();
         }
 
         // Fetch data from backend API
@@ -864,6 +1063,265 @@
             } catch (error) {
                 console.error('Error loading whale analytics:', error);
             }
+        }
+
+        // Market Cards Functions
+        async function loadMarketCards() {
+            try {
+                const response = await fetch('/api/markets/top5');
+                const marketData = await response.json();
+                
+                if (marketData.markets) {
+                    displayMarketCards(marketData.markets);
+                }
+            } catch (error) {
+                console.error('Error loading market cards:', error);
+                // Use demo data if API fails
+                displayMarketCards(getDemoMarketData());
+            }
+        }
+
+        function displayMarketCards(markets) {
+            const cardsContainer = document.getElementById('markets-cards');
+            
+            cardsContainer.innerHTML = markets.map(market => createMarketCard(market)).join('');
+            
+            // Add click listeners for betting buttons
+            cardsContainer.querySelectorAll('.bet-btn').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    const outcome = btn.classList.contains('yes') ? 'YES' : 'NO';
+                    const marketTitle = btn.closest('.market-card').querySelector('.market-question').textContent;
+                    showBettingDialog(marketTitle, outcome);
+                });
+            });
+        }
+
+        function createMarketCard(market) {
+            const iconSVG = getMarketIcon(market.category);
+            
+            return `
+                <div class="market-card" data-market="${market.id}">
+                    <div class="market-card-header">
+                        <div class="market-icon">
+                            ${iconSVG}
+                        </div>
+                        <div class="market-content">
+                            <div class="market-question">${market.question}</div>
+                            <div class="market-meta">
+                                <span>${market.category}</span>
+                                <span>•</span>
+                                <span>${formatTimeAgo(market.lastUpdate)}</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    ${market.outcomes.map(outcome => `
+                        <div class="outcome-row">
+                            <div class="outcome-info">
+                                <div class="outcome-title">${outcome.title}</div>
+                                <div class="outcome-description">${outcome.description}</div>
+                            </div>
+                            <div class="probability-section">
+                                <div class="probability">${outcome.probability}%</div>
+                                <div class="bet-buttons">
+                                    <button class="bet-btn yes" data-outcome="${outcome.title}">YES</button>
+                                    <button class="bet-btn no" data-outcome="${outcome.title}">NO</button>
+                                </div>
+                            </div>
+                        </div>
+                    `).join('')}
+                    
+                    <div class="market-footer">
+                        <div class="volume-info">
+                            Volume: $${formatNumber(market.volume)}
+                        </div>
+                        <div style="display: flex; align-items: center; gap: 12px;">
+                            <div class="payout-info">
+                                Payout: $100 → $${Math.round((100 / outcome.probability) * 100)}
+                            </div>
+                            <button class="expand-btn" onclick="expandMarket('${market.id}')">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+                                    <path d="M12 5v14m0 0l-6-6m6 6l6-6" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                                </svg>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        function getMarketIcon(category) {
+            const iconMap = {
+                crypto: `<svg viewBox="0 0 24 24" fill="none">
+                    <circle cx="12" cy="12" r="8" fill="currentColor"/>
+                    <text x="12" y="16" text-anchor="middle" fill="white" font-size="10" font-weight="bold">₿</text>
+                </svg>`,
+                politics: `<svg viewBox="0 0 24 24" fill="none">
+                    <path d="M12 2L2 7v10c0 5.55 3.84 9.74 9 11 5.16-1.26 9-5.45 9-11V7l-10-5z" fill="currentColor"/>
+                </svg>`,
+                economy: `<svg viewBox="0 0 24 24" fill="none">
+                    <path d="M12 2v20M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                </svg>`,
+                sports: `<svg viewBox="0 0 24 24" fill="none">
+                    <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2"/>
+                    <path d="M12 6v6l4 2" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                </svg>`
+            };
+            
+            return iconMap[category.toLowerCase()] || iconMap.crypto;
+        }
+
+        function filterMarkets() {
+            const filter = document.getElementById('market-filter').value;
+            const cards = document.querySelectorAll('.market-card');
+            
+            cards.forEach(card => {
+                const shouldShow = filter === 'all' || card.dataset[filter] === 'true';
+                card.style.display = shouldShow ? 'block' : 'none';
+            });
+        }
+
+        function refreshMarketData() {
+            const refreshBtn = document.querySelector('.refresh-btn');
+            refreshBtn.classList.add('loading');
+            
+            loadMarketCards().finally(() => {
+                refreshBtn.classList.remove('loading');
+            });
+        }
+
+        function expandMarket(marketId) {
+            console.log('Expanding market:', marketId);
+            // TODO: Implement market detail view
+        }
+
+        function showBettingDialog(marketTitle, outcome) {
+            alert(`Betting ${outcome} on: ${marketTitle}\n\nThis is a demo. In a real Kalshi app, this would open the betting interface.`);
+        }
+
+        function getDemoMarketData() {
+            return [
+                {
+                    id: 'btc-2024-high',
+                    question: 'Will Bitcoin reach $100,000 by the end of 2024?',
+                    category: 'Crypto',
+                    lastUpdate: new Date(),
+                    volume: 19806091,
+                    outcomes: [
+                        {
+                            title: 'YES',
+                            description: 'Bitcoin closes above $100,000',
+                            probability: 28
+                        },
+                        {
+                            title: 'NO',
+                            description: 'Bitcoin stays below $100,000',
+                            probability: 72
+                        }
+                    ]
+                },
+                {
+                    id: 'trump-2024',
+                    question: 'Will Donald Trump be convicted before election day?',
+                    category: 'Politics',
+                    lastUpdate: new Date(),
+                    volume: 8523450,
+                    outcomes: [
+                        {
+                            title: 'YES',
+                            description: 'Trump convicted by Nov 5, 2024',
+                            probability: 43
+                        },
+                        {
+                            title: 'NO',
+                            description: 'No conviction by election day',
+                            probability: 57
+                        }
+                    ]
+                },
+                {
+                    id: 'fed-rate-2024',
+                    question: 'Will the Federal Reserve cut interest rates to 0% by December 2024?',
+                    category: 'Economy',
+                    lastUpdate: new Date(),
+                    volume: 6345789,
+                    outcomes: [
+                        {
+                            title: 'YES',
+                            description: 'Fed funds rate at 0%',
+                            probability: 15
+                        },
+                        {
+                            title: 'NO',
+                            description: 'Rate stays above 0%',
+                            probability: 85
+                        }
+                    ]
+                },
+                {
+                    id: 'election-result',
+                    question: 'Will Kamala Harris win the 2024 Presidential election?',
+                    category: 'Politics',
+                    lastUpdate: new Date(),
+                    volume: 12745632,
+                    outcomes: [
+                        {
+                            title: 'YES',
+                            description: 'Harris wins election',
+                            probability: 52
+                        },
+                        {
+                            title: 'NO',
+                            description: 'Harris loses election',
+                            probability: 48
+                        }
+                    ]
+                },
+                {
+                    id: 'inflation-target',
+                    question: 'Will US inflation fall below 2% by Q4 2024?',
+                    category: 'Economy',
+                    lastUpdate: new Date(),
+                    volume: 4321876,
+                    outcomes: [
+                        {
+                            title: 'YES',
+                            description: 'CPI below 2% annualized',
+                            probability: 38
+                        },
+                        {
+                            title: 'NO',
+                            description: 'Inflation stays above 2%',
+                            probability: 62
+                        }
+                    ]
+                }
+            ];
+        }
+
+        function formatNumber(num) {
+            if (num >= 1000000) {
+                return (num / 1000000).toFixed(1) + 'M';
+            } else if (num >= 1000) {
+                return (num / 1000).toFixed(1) + 'K';
+            }
+            return num.toString();
+        }
+
+        function formatTimeAgo(date) {
+            const now = new Date();
+            const diff = now - new Date(date);
+            const minutes = Math.floor(diff / 60000);
+            
+            if (minutes < 1) return 'Just now';
+            if (minutes < 60) return `${minutes}m ago`;
+            
+            const hours = Math.floor(minutes / 60);
+            if (hours < 24) return `${hours}h ago`;
+            
+            const days = Math.floor(hours / 24);
+            return `${days}d ago`;
         }
 
         // Create charts

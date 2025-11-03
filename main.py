@@ -412,6 +412,135 @@ async def get_top_markets():
         "count": len(top_markets)
     })
 
+@app.get("/api/markets/top5")
+async def get_top5_markets_detailed():
+    """Get top 5 markets with detailed card information for the frontend"""
+    
+    # Demo market data since we don't have access to actual Kalshi API outcomes
+    demo_markets = [
+        {
+            "id": "btc-2024-high",
+            "question": "Will Bitcoin reach $100,000 by the end of 2024?",
+            "category": "Crypto",
+            "last_update": datetime.now().isoformat(),
+            "volume": 19806091,
+            "outcomes": [
+                {
+                    "title": "YES",
+                    "description": "Bitcoin closes above $100,000",
+                    "probability": 28
+                },
+                {
+                    "title": "NO",
+                    "description": "Bitcoin stays below $100,000",
+                    "probability": 72
+                }
+            ],
+            "high_volume": True,
+            "trending": True,
+            "high_liquidity": True,
+            "recent": True
+        },
+        {
+            "id": "trump-2024",
+            "question": "Will Donald Trump be convicted before election day?",
+            "category": "Politics",
+            "last_update": datetime.now().isoformat(),
+            "volume": 8523450,
+            "outcomes": [
+                {
+                    "title": "YES",
+                    "description": "Trump convicted by Nov 5, 2024",
+                    "probability": 43
+                },
+                {
+                    "title": "NO",
+                    "description": "No conviction by election day",
+                    "probability": 57
+                }
+            ],
+            "high_volume": True,
+            "trending": False,
+            "high_liquidity": False,
+            "recent": True
+        },
+        {
+            "id": "fed-rate-2024",
+            "question": "Will the Federal Reserve cut interest rates to 0% by December 2024?",
+            "category": "Economy",
+            "last_update": datetime.now().isoformat(),
+            "volume": 6345789,
+            "outcomes": [
+                {
+                    "title": "YES",
+                    "description": "Fed funds rate at 0%",
+                    "probability": 15
+                },
+                {
+                    "title": "NO",
+                    "description": "Rate stays above 0%",
+                    "probability": 85
+                }
+            ],
+            "high_volume": False,
+            "trending": False,
+            "high_liquidity": True,
+            "recent": False
+        },
+        {
+            "id": "election-result",
+            "question": "Will Kamala Harris win the 2024 Presidential election?",
+            "category": "Politics",
+            "last_update": datetime.now().isoformat(),
+            "volume": 12745632,
+            "outcomes": [
+                {
+                    "title": "YES",
+                    "description": "Harris wins election",
+                    "probability": 52
+                },
+                {
+                    "title": "NO",
+                    "description": "Harris loses election",
+                    "probability": 48
+                }
+            ],
+            "high_volume": True,
+            "trending": True,
+            "high_liquidity": True,
+            "recent": True
+        },
+        {
+            "id": "inflation-target",
+            "question": "Will US inflation fall below 2% by Q4 2024?",
+            "category": "Economy",
+            "last_update": datetime.now().isoformat(),
+            "volume": 4321876,
+            "outcomes": [
+                {
+                    "title": "YES",
+                    "description": "CPI below 2% annualized",
+                    "probability": 38
+                },
+                {
+                    "title": "NO",
+                    "description": "Inflation stays above 2%",
+                    "probability": 62
+                }
+            ],
+            "high_volume": False,
+            "trending": False,
+            "high_liquidity": False,
+            "recent": True
+        }
+    ]
+    
+    return JSONResponse({
+        "markets": demo_markets,
+        "count": len(demo_markets),
+        "timestamp": datetime.now().isoformat()
+    })
+
 @app.get("/api/whale-alerts")
 async def get_whale_alerts():
     """Get sophisticated whale activity alerts based on volume surges, odds flips, and order book shifts"""
