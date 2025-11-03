@@ -1,0 +1,538 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>KalshiWhale - Crypto Whale Tracker</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: #0a0a0a;
+            color: #ffffff;
+            font-family: 'Arial', sans-serif;
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #1a1a1a, #2d2d2d);
+            padding: 30px;
+            border-radius: 15px;
+            margin-bottom: 30px;
+            text-align: center;
+            border: 1px solid #333;
+        }
+
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            background: linear-gradient(45deg, #00d4ff, #0099cc);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .status-bar {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .status-card {
+            background: #1a1a1a;
+            padding: 20px;
+            border-radius: 10px;
+            border: 1px solid #333;
+            text-align: center;
+        }
+
+        .status-number {
+            font-size: 2em;
+            font-weight: bold;
+            color: #00d4ff;
+        }
+
+        .status-label {
+            color: #888;
+            margin-top: 5px;
+        }
+
+        .main-content {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            margin-bottom: 30px;
+        }
+
+        .charts-section {
+            background: #1a1a1a;
+            padding: 25px;
+            border-radius: 15px;
+            border: 1px solid #333;
+        }
+
+        .chart-title {
+            font-size: 1.3em;
+            margin-bottom: 20px;
+            color: #00d4ff;
+        }
+
+        .top-markets {
+            background: #1a1a1a;
+            padding: 25px;
+            border-radius: 15px;
+            border: 1px solid #333;
+        }
+
+        .markets-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 15px;
+        }
+
+        .markets-table th,
+        .markets-table td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #333;
+        }
+
+        .markets-table th {
+            background: #2a2a2a;
+            color: #00d4ff;
+        }
+
+        .sentiment-bull {
+            color: #00ff88;
+        }
+
+        .sentiment-bear {
+            color: #ff4757;
+        }
+
+        .sentiment-neutral {
+            color: #ffa726;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 50px;
+            color: #888;
+        }
+
+        .whale-alerts {
+            background: #1a1a1a;
+            padding: 25px;
+            border-radius: 15px;
+            border: 1px solid #333;
+            margin-top: 30px;
+        }
+
+        .alert {
+            background: #2a2a2a;
+            padding: 15px;
+            margin: 10px 0;
+            border-radius: 8px;
+            border-left: 4px solid #00d4ff;
+        }
+
+        .alert-title {
+            font-weight: bold;
+            color: #00d4ff;
+        }
+
+        .alert-details {
+            color: #ccc;
+            margin-top: 5px;
+        }
+
+        .last-update {
+            text-align: center;
+            color: #888;
+            margin-top: 20px;
+            font-size: 0.9em;
+        }
+
+        @media (max-width: 768px) {
+            .main-content {
+                grid-template-columns: 1fr;
+            }
+            
+            .status-bar {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        .refresh-btn {
+            background: #00d4ff;
+            color: #000;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+            margin: 10px;
+        }
+
+        .refresh-btn:hover {
+            background: #0099cc;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🐋 KalshiWhale</h1>
+            <p>Real-time Crypto Whale Tracker for Kalshi Prediction Markets</p>
+            <button class="refresh-btn" onclick="refreshData()">🔄 Refresh Data</button>
+        </div>
+
+        <div class="status-bar">
+            <div class="status-card">
+                <div class="status-number" id="total-markets">0</div>
+                <div class="status-label">Total Markets</div>
+            </div>
+            <div class="status-card">
+                <div class="status-number" id="active-volume">0</div>
+                <div class="status-label">24h Volume</div>
+            </div>
+            <div class="status-card">
+                <div class="status-number" id="whale-alerts">0</div>
+                <div class="status-label">Whale Alerts</div>
+            </div>
+            <div class="status-card">
+                <div class="status-number" id="live-status">🔴</div>
+                <div class="status-label">Live Status</div>
+            </div>
+        </div>
+
+        <div class="main-content">
+            <div class="charts-section">
+                <h2 class="chart-title">📊 Market Analytics</h2>
+                <canvas id="priceChart" width="400" height="200"></canvas>
+                <div id="loading-charts" class="loading">Loading charts...</div>
+            </div>
+
+            <div class="top-markets">
+                <h2 class="chart-title">🏆 Top 5 Markets</h2>
+                <div id="top-markets-container">
+                    <div class="loading">Loading top markets...</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="whale-alerts">
+            <h2 class="chart-title">🚨 Recent Whale Alerts</h2>
+            <div id="whale-alerts-container">
+                <div class="loading">Loading whale alerts...</div>
+            </div>
+        </div>
+
+        <div class="last-update" id="last-update">
+            Last update: Never
+        </div>
+    </div>
+
+    <script>
+        // Configuration
+        const KALSHI_API_BASE = 'https://api.elections.kalshi.com/trade-api/v2';
+        const UPDATE_INTERVAL = 120000; // 2 minutes
+        let priceChart = null;
+        let updateTimer = null;
+
+        // Initialize app
+        document.addEventListener('DOMContentLoaded', function() {
+            initializeApp();
+        });
+
+        async function initializeApp() {
+            console.log('🚀 Initializing KalshiWhale Static...');
+            await fetchAndDisplayData();
+            startPeriodicUpdates();
+        }
+
+        function startPeriodicUpdates() {
+            if (updateTimer) {
+                clearInterval(updateTimer);
+            }
+            updateTimer = setInterval(fetchAndDisplayData, UPDATE_INTERVAL);
+            console.log('🔄 Started periodic updates every 2 minutes');
+        }
+
+        async function fetchAndDisplayData() {
+            try {
+                console.log('📊 Fetching data from Kalshi API...');
+                
+                // Fetch crypto markets data
+                const cryptoData = await fetchCryptoMarkets();
+                
+                if (cryptoData && cryptoData.length > 0) {
+                    updateStatusBar(cryptoData);
+                    updateCharts(cryptoData);
+                    updateTopMarkets(cryptoData);
+                    updateWhaleAlerts(cryptoData);
+                    updateLastUpdateTime();
+                } else {
+                    console.warn('⚠️ No crypto markets found');
+                    showErrorState();
+                }
+                
+            } catch (error) {
+                console.error('❌ Error fetching data:', error);
+                showErrorState();
+            }
+        }
+
+        async function fetchCryptoMarkets() {
+            try {
+                // Try fetching Bitcoin markets
+                const btcResponse = await fetch(`${KALSHI_API_BASE}/markets?series_ticker=KXBTC&limit=50`);
+                const btcData = await btcResponse.json();
+                
+                // Try fetching Ethereum markets
+                const ethResponse = await fetch(`${KALSHI_API_BASE}/markets?series_ticker=KXETH&limit=50`);
+                const ethData = await ethResponse.json();
+                
+                const allMarkets = [];
+                
+                if (btcData.markets) {
+                    allMarkets.push(...btcData.markets.map(m => ({...m, category: 'Bitcoin'})));
+                }
+                
+                if (ethData.markets) {
+                    allMarkets.push(...ethData.markets.map(m => ({...m, category: 'Ethereum'})));
+                }
+                
+                console.log(`📈 Found ${allMarkets.length} markets total`);
+                return allMarkets;
+                
+            } catch (error) {
+                console.error('Error fetching markets:', error);
+                
+                // Fallback to active markets
+                try {
+                    const response = await fetch(`${KALSHI_API_BASE}/markets?status=open&limit=100`);
+                    const data = await response.json();
+                    
+                    if (data.markets) {
+                        const cryptoMarkets = data.markets.filter(m => 
+                            m.series_ticker && (m.series_ticker.includes('BTC') || m.series_ticker.includes('ETH'))
+                        );
+                        console.log(`🔍 Fallback: Found ${cryptoMarkets.length} crypto markets`);
+                        return cryptoMarkets;
+                    }
+                } catch (fallbackError) {
+                    console.error('Fallback also failed:', fallbackError);
+                }
+                
+                return [];
+            }
+        }
+
+        function updateStatusBar(markets) {
+            const totalMarkets = markets.length;
+            const totalVolume = markets.reduce((sum, market) => sum + (market.volume || 0), 0);
+            
+            document.getElementById('total-markets').textContent = totalMarkets;
+            document.getElementById('active-volume').textContent = formatNumber(totalVolume);
+            document.getElementById('whale-alerts').textContent = Math.floor(totalMarkets * 0.1); // Estimate
+            document.getElementById('live-status').textContent = '🟢';
+        }
+
+        function updateCharts(markets) {
+            const chartContainer = document.getElementById('loading-charts');
+            chartContainer.style.display = 'none';
+            
+            // Prepare data for charts
+            const topMarkets = markets.slice(0, 10);
+            const labels = topMarkets.map(m => m.series_ticker || m.ticker);
+            const volumes = topMarkets.map(m => m.volume || 0);
+            const probabilities = topMarkets.map(m => m.last_price || 0);
+            
+            // Destroy existing chart
+            if (priceChart) {
+                priceChart.destroy();
+            }
+            
+            // Create volume chart
+            const ctx = document.getElementById('priceChart').getContext('2d');
+            priceChart = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: 'Volume',
+                        data: volumes,
+                        backgroundColor: 'rgba(0, 212, 255, 0.6)',
+                        borderColor: 'rgba(0, 212, 255, 1)',
+                        borderWidth: 1
+                    }, {
+                        label: 'Probability (%)',
+                        data: probabilities,
+                        type: 'line',
+                        borderColor: 'rgba(0, 255, 136, 1)',
+                        backgroundColor: 'rgba(0, 255, 136, 0.1)',
+                        yAxisID: 'y1'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            labels: {
+                                color: '#ffffff'
+                            }
+                        }
+                    },
+                    scales: {
+                        x: {
+                            ticks: {
+                                color: '#ffffff'
+                            }
+                        },
+                        y: {
+                            ticks: {
+                                color: '#ffffff'
+                            }
+                        },
+                        y1: {
+                            position: 'right',
+                            ticks: {
+                                color: '#ffffff'
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        function updateTopMarkets(markets) {
+            const container = document.getElementById('top-markets-container');
+            const topMarkets = markets.slice(0, 5);
+            
+            let tableHTML = `
+                <table class="markets-table">
+                    <thead>
+                        <tr>
+                            <th>Market</th>
+                            <th>Category</th>
+                            <th>Probability</th>
+                            <th>Volume</th>
+                            <th>Sentiment</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+            `;
+            
+            topMarkets.forEach((market, index) => {
+                const probability = market.last_price || 0;
+                const volume = market.volume || 0;
+                const sentiment = getSentiment(probability);
+                const sentimentClass = sentiment === 'bullish' ? 'sentiment-bull' : 
+                                     sentiment === 'bearish' ? 'sentiment-bear' : 'sentiment-neutral';
+                
+                tableHTML += `
+                    <tr>
+                        <td><strong>${market.series_ticker || market.ticker}</strong></td>
+                        <td>${market.category || 'Unknown'}</td>
+                        <td>${probability}%</td>
+                        <td>${formatNumber(volume)}</td>
+                        <td><span class="${sentimentClass}">${sentiment.toUpperCase()}</span></td>
+                    </tr>
+                `;
+            });
+            
+            tableHTML += `
+                    </tbody>
+                </table>
+            `;
+            
+            container.innerHTML = tableHTML;
+        }
+
+        function updateWhaleAlerts(markets) {
+            const container = document.getElementById('whale-alerts-container');
+            const topMarkets = markets.slice(0, 3);
+            
+            let alertsHTML = '';
+            
+            topMarkets.forEach((market, index) => {
+                const probability = market.last_price || 0;
+                const volume = market.volume || 0;
+                const sentiment = getSentiment(probability);
+                
+                alertsHTML += `
+                    <div class="alert">
+                        <div class="alert-title">🐋 Whale Alert #${index + 1}</div>
+                        <div class="alert-details">
+                            <strong>${market.series_ticker || market.ticker}</strong> | 
+                            Volume: ${formatNumber(volume)} | 
+                            Probability: ${probability}% | 
+                            <span class="sentiment-${sentiment === 'bullish' ? 'bull' : sentiment === 'bearish' ? 'bear' : 'neutral'}">
+                                ${sentiment.toUpperCase()}
+                            </span>
+                        </div>
+                    </div>
+                `;
+            });
+            
+            if (alertsHTML === '') {
+                alertsHTML = '<div class="loading">No whale alerts at the moment</div>';
+            }
+            
+            container.innerHTML = alertsHTML;
+        }
+
+        function getSentiment(probability) {
+            if (probability > 60) return 'bullish';
+            if (probability < 40) return 'bearish';
+            return 'neutral';
+        }
+
+        function formatNumber(num) {
+            if (num >= 1000000) {
+                return (num / 1000000).toFixed(1) + 'M';
+            } else if (num >= 1000) {
+                return (num / 1000).toFixed(1) + 'K';
+            }
+            return num.toString();
+        }
+
+        function updateLastUpdateTime() {
+            const now = new Date();
+            const timeString = now.toLocaleString();
+            document.getElementById('last-update').textContent = `Last update: ${timeString}`;
+        }
+
+        function showErrorState() {
+            document.getElementById('live-status').textContent = '🔴';
+            document.getElementById('whale-alerts-container').innerHTML = 
+                '<div class="loading">⚠️ Unable to connect to Kalshi API</div>';
+        }
+
+        function refreshData() {
+            console.log('🔄 Manual refresh requested');
+            fetchAndDisplayData();
+        }
+
+        // Handle window focus - refresh when user comes back
+        window.addEventListener('focus', function() {
+            console.log('👁️ Window focused, refreshing data...');
+            fetchAndDisplayData();
+        });
+    </script>
+</body>
+</html>
