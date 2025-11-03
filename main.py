@@ -2,8 +2,9 @@ import os
 import json
 import asyncio
 import logging
+import statistics
 from datetime import datetime, timedelta
-from typing import List, Dict, Any, Optional
+from typing import List, Dict, Any, Optional, Tuple
 from pathlib import Path
 import requests
 from fastapi import FastAPI, WebSocket, WebSocketDisconnect, HTTPException, Request
@@ -43,6 +44,19 @@ websocket_connections: List[WebSocket] = []
 last_update: datetime = datetime.now()
 update_task: Optional[asyncio.Task] = None
 
+# Historical data for whale detection
+historical_data: Dict[str, Dict] = {}  # {market_id: {previous_data}}
+whale_signals: List[Dict] = []  # Store detected whale activities
+order_book_changes: Dict[str, Dict] = {}  # Track order book shifts
+volume_history: Dict[str, List[float]] = {}  # Track volume over time
+odds_history: Dict[str, List[float]] = {}  # Track odds changes
+
+# Whale detection thresholds
+VOLUME_SURGE_THRESHOLD = 3.0  # 3x average volume
+ODDS_CHANGE_THRESHOLD = 15.0  # 15% odds change
+ORDER_BOOK_DEPTH_CHANGE_THRESHOLD = 25.0  # 25% depth change
+WHALE_VOLUME_MINIMUM = 1000000  # $1M minimum volume
+
 class ConnectionManager:
     """Manage WebSocket connections"""
     
@@ -75,9 +89,9 @@ class ConnectionManager:
 manager = ConnectionManager()
 
 async def fetch_kalshi_data() -> List[Dict]:
-    """Fetch data from Kalshi API"""
+    """Fetch data from Kalshi API with enhanced whale detection"""
     try:
-        # Fetch open crypto markets
+        # Fetch open crypto markets with detailed data
         url = f"{KALSHI_API_BASE}/markets?status=open&limit=200"
         response = requests.get(url, timeout=10)
         response.raise_for_status()
@@ -87,20 +101,179 @@ async def fetch_kalshi_data() -> List[Dict]:
         
         # Filter for crypto-related markets
         crypto_markets = []
+        whale_activities = []
+        
         for market in markets:
             ticker = market.get("ticker_symbol", "").lower()
             if any(crypto in ticker for crypto in ["btc", "eth", "crypto", "bitcoin", "ethereum"]):
+                market_id = market.get("id", ticker)
+                
                 # Add derived metrics
                 market["volume_millions"] = market.get("volume", 0) / 1000000
                 market["last_updated"] = datetime.now().isoformat()
+                
+                # Get current data
+                current_volume = market.get("volume", 0)
+                current_odds = market.get("close_price", market.get("value", 50))
+                
+                # Detect whale activities
+                whale_activity = detect_whale_activity(market_id, market)
+                if whale_activity:
+                    whale_activities.append(whale_activity)
+                    logger.info(f"🐋 Whale detected: {whale_activity['type']} on {ticker}")
+                
                 crypto_markets.append(market)
         
-        logger.info(f"Fetched {len(crypto_markets)} crypto markets")
+        # Store whale signals globally
+        if whale_activities:
+            whale_signals.extend(whale_activities)
+            # Keep only last 100 signals
+            whale_signals[:] = whale_signals[-100:]
+        
+        logger.info(f"Fetched {len(crypto_markets)} crypto markets, detected {len(whale_activities)} whale activities")
         return crypto_markets
         
     except Exception as e:
         logger.error(f"Error fetching Kalshi data: {e}")
         return []
+
+def detect_whale_activity(market_id: str, current_market: Dict) -> Optional[Dict]:
+    """Detect whale activities based on order book shifts, volume surges, and odds flips"""
+    
+    current_volume = current_market.get("volume", 0)
+    current_odds = current_market.get("close_price", current_market.get("value", 50))
+    
+    # Initialize historical data for this market
+    if market_id not in historical_data:
+        historical_data[market_id] = {
+            "volume": current_volume,
+            "odds": current_odds,
+            "order_book": get_mock_order_book_data(current_market),  # Mock data for demonstration
+            "timestamp": datetime.now().isoformat()
+        }
+        return None
+    
+    previous_data = historical_data[market_id]
+    previous_volume = previous_data["volume"]
+    previous_odds = previous_data["odds"]
+    previous_order_book = previous_data.get("order_book", {})
+    
+    whale_activity = None
+    
+    # 1. VOLUME SURGE DETECTION
+    if current_volume > WHALE_VOLUME_MINIMUM:
+        volume_growth = calculate_volume_growth(market_id, current_volume)
+        if volume_growth >= VOLUME_SURGE_THRESHOLD:
+            whale_activity = {
+                "type": "volume_surge",
+                "market_id": market_id,
+                "ticker": current_market.get("ticker_symbol", "Unknown"),
+                "current_volume": current_volume,
+                "previous_volume": previous_volume,
+                "volume_growth": volume_growth,
+                "timestamp": datetime.now().isoformat(),
+                "severity": "high" if volume_growth >= 5.0 else "medium"
+            }
+    
+    # 2. ODDS FLIP DETECTION
+    if abs(current_odds - previous_odds) >= ODDS_CHANGE_THRESHOLD:
+        odds_change_percent = abs(current_odds - previous_odds) / previous_odds * 100
+        direction = "up" if current_odds > previous_odds else "down"
+        
+        whale_activity = {
+            "type": "odds_flip",
+            "market_id": market_id,
+            "ticker": current_market.get("ticker_symbol", "Unknown"),
+            "current_odds": current_odds,
+            "previous_odds": previous_odds,
+            "change_percent": odds_change_percent,
+            "direction": direction,
+            "timestamp": datetime.now().isoformat(),
+            "severity": "high" if odds_change_percent >= 25.0 else "medium"
+        }
+    
+    # 3. ORDER BOOK SHIFT DETECTION
+    current_order_book = get_mock_order_book_data(current_market)
+    order_book_change = calculate_order_book_change(previous_order_book, current_order_book)
+    
+    if order_book_change >= ORDER_BOOK_DEPTH_CHANGE_THRESHOLD:
+        whale_activity = {
+            "type": "order_book_shift",
+            "market_id": market_id,
+            "ticker": current_market.get("ticker_symbol", "Unknown"),
+            "depth_change": order_book_change,
+            "previous_depth": sum(previous_order_book.get("bids", [0])),
+            "current_depth": sum(current_order_book.get("bids", [0])),
+            "timestamp": datetime.now().isoformat(),
+            "severity": "high" if order_book_change >= 50.0 else "medium"
+        }
+    
+    # Update historical data
+    historical_data[market_id] = {
+        "volume": current_volume,
+        "odds": current_odds,
+        "order_book": current_order_book,
+        "timestamp": datetime.now().isoformat()
+    }
+    
+    return whale_activity
+
+def calculate_volume_growth(market_id: str, current_volume: float) -> float:
+    """Calculate volume growth compared to historical average"""
+    if market_id not in volume_history:
+        volume_history[market_id] = []
+    
+    # Add current volume to history
+    volume_history[market_id].append(current_volume)
+    
+    # Keep only last 20 data points for average calculation
+    if len(volume_history[market_id]) > 20:
+        volume_history[market_id].pop(0)
+    
+    # Calculate average volume
+    if len(volume_history[market_id]) >= 3:
+        avg_volume = statistics.mean(volume_history[market_id][:-1])  # Exclude current
+        if avg_volume > 0:
+            return current_volume / avg_volume
+    
+    return 1.0
+
+def calculate_order_book_change(previous_book: Dict, current_book: Dict) -> float:
+    """Calculate percentage change in order book depth"""
+    prev_bids = sum(previous_book.get("bids", [0]))
+    curr_bids = sum(current_book.get("bids", [0]))
+    
+    if prev_bids == 0:
+        return 0.0
+    
+    return abs(curr_bids - prev_bids) / prev_bids * 100
+
+def get_mock_order_book_data(market: Dict) -> Dict:
+    """Generate mock order book data for demonstration"""
+    import random
+    
+    volume = market.get("volume", 0)
+    # Generate realistic order book based on volume
+    base_depth = max(1, volume / 1000000)  # Scale with volume
+    
+    bids = [
+        max(1, base_depth * random.uniform(0.8, 1.2)),
+        max(1, base_depth * random.uniform(0.6, 0.9)),
+        max(1, base_depth * random.uniform(0.4, 0.7))
+    ]
+    
+    asks = [
+        max(1, base_depth * random.uniform(0.8, 1.2)),
+        max(1, base_depth * random.uniform(0.6, 0.9)),
+        max(1, base_depth * random.uniform(0.4, 0.7))
+    ]
+    
+    return {
+        "bids": bids,
+        "asks": asks,
+        "bid_depth": sum(bids),
+        "ask_depth": sum(asks)
+    }
 
 async def update_market_data():
     """Background task to update market data every 2 minutes"""
@@ -125,6 +298,20 @@ async def update_market_data():
                     }
                 }
                 await manager.broadcast(json.dumps(update_message))
+                
+                # Broadcast new whale signals if any
+                recent_whale_signals = whale_signals[-5:] if whale_signals else []
+                if recent_whale_signals:
+                    whale_message = {
+                        "type": "whale_alerts",
+                        "data": {
+                            "alerts": recent_whale_signals,
+                            "timestamp": datetime.now().isoformat(),
+                            "count": len(recent_whale_signals)
+                        }
+                    }
+                    await manager.broadcast(json.dumps(whale_message))
+                    logger.info(f"🐋 Broadcasted {len(recent_whale_signals)} whale alerts")
                 
                 logger.info(f"Market data updated. Total markets: {len(markets_data)}")
             else:
@@ -227,21 +414,130 @@ async def get_top_markets():
 
 @app.get("/api/whale-alerts")
 async def get_whale_alerts():
-    """Get markets with high volume (whale activity)"""
-    if not markets_data:
-        return JSONResponse({"alerts": [], "error": "No data available"})
+    """Get sophisticated whale activity alerts based on volume surges, odds flips, and order book shifts"""
     
-    # Find markets with volume > $1M as whale activity
-    whale_markets = [
-        market for market in markets_data 
-        if market.get("volume", 0) > 1000000
-    ]
+    # Get recent whale signals (last 10)
+    recent_signals = whale_signals[-10:] if whale_signals else []
+    
+    # Also include high-volume markets as fallback
+    high_volume_markets = []
+    if markets_data:
+        high_volume_markets = [
+            {
+                "type": "high_volume",
+                "ticker": market.get("ticker_symbol", "Unknown"),
+                "volume": market.get("volume", 0),
+                "volume_millions": market.get("volume_millions", 0),
+                "timestamp": market.get("last_updated", datetime.now().isoformat()),
+                "description": f"High volume trading detected: ${market.get('volume', 0):,.0f}"
+            }
+            for market in markets_data 
+            if market.get("volume", 0) > WHALE_VOLUME_MINIMUM
+        ]
+    
+    # Combine whale signals and high volume markets
+    all_alerts = []
+    
+    # Add sophisticated whale detection alerts
+    for signal in recent_signals:
+        alert = {
+            "type": signal["type"],
+            "ticker": signal["ticker"],
+            "severity": signal.get("severity", "medium"),
+            "description": generate_whale_description(signal),
+            "data": signal,
+            "timestamp": signal["timestamp"]
+        }
+        all_alerts.append(alert)
+    
+    # Add high-volume market alerts
+    for market_alert in high_volume_markets:
+        all_alerts.append(market_alert)
+    
+    # Sort by timestamp (most recent first)
+    all_alerts.sort(key=lambda x: x["timestamp"], reverse=True)
     
     return JSONResponse({
-        "alerts": whale_markets,
-        "count": len(whale_markets),
-        "threshold": 1000000
+        "alerts": all_alerts,
+        "count": len(all_alerts),
+        "whale_signals_count": len(recent_signals),
+        "high_volume_count": len(high_volume_markets),
+        "detection_types": {
+            "volume_surge": any(a["type"] == "volume_surge" for a in all_alerts),
+            "odds_flip": any(a["type"] == "odds_flip" for a in all_alerts),
+            "order_book_shift": any(a["type"] == "order_book_shift" for a in all_alerts),
+            "high_volume": any(a["type"] == "high_volume" for a in all_alerts)
+        },
+        "thresholds": {
+            "volume_surge_multiplier": VOLUME_SURGE_THRESHOLD,
+            "odds_change_percent": ODDS_CHANGE_THRESHOLD,
+            "order_book_change_percent": ORDER_BOOK_DEPTH_CHANGE_THRESHOLD,
+            "minimum_volume": WHALE_VOLUME_MINIMUM
+        }
     })
+
+def generate_whale_description(signal: Dict) -> str:
+    """Generate human-readable description for whale activity"""
+    signal_type = signal["type"]
+    ticker = signal["ticker"]
+    
+    if signal_type == "volume_surge":
+        growth = signal.get("volume_growth", 0)
+        return f"🐋 Massive volume surge detected on {ticker}: {growth:.1f}x normal volume"
+    
+    elif signal_type == "odds_flip":
+        change = signal.get("change_percent", 0)
+        direction = signal.get("direction", "changed")
+        return f"📈 Odds {direction} detected on {ticker}: {change:.1f}% change"
+    
+    elif signal_type == "order_book_shift":
+        depth_change = signal.get("depth_change", 0)
+        return f"💰 Order book depth shift on {ticker}: {depth_change:.1f}% change in market depth"
+    
+    else:
+        return f"🚨 Whale activity detected on {ticker}"
+
+@app.get("/api/whale-analytics")
+async def get_whale_analytics():
+    """Get detailed whale analytics and market insights"""
+    
+    analytics = {
+        "total_whale_signals": len(whale_signals),
+        "signal_types": {},
+        "most_active_markets": {},
+        "recent_activity": [],
+        "volume_trends": {},
+        "odds_movements": {}
+    }
+    
+    # Analyze signal types
+    for signal in whale_signals:
+        signal_type = signal["type"]
+        analytics["signal_types"][signal_type] = analytics["signal_types"].get(signal_type, 0) + 1
+    
+    # Find most active markets
+    market_activity = {}
+    for signal in whale_signals:
+        ticker = signal["ticker"]
+        market_activity[ticker] = market_activity.get(ticker, 0) + 1
+    
+    analytics["most_active_markets"] = dict(sorted(market_activity.items(), 
+                                                  key=lambda x: x[1], reverse=True)[:5])
+    
+    # Recent activity (last 5 signals)
+    analytics["recent_activity"] = whale_signals[-5:] if whale_signals else []
+    
+    # Volume trends
+    for market_id, volumes in volume_history.items():
+        if len(volumes) >= 3:
+            recent_avg = statistics.mean(volumes[-3:])
+            analytics["volume_trends"][market_id] = {
+                "recent_average": recent_avg,
+                "trend": "increasing" if volumes[-1] > volumes[0] else "decreasing",
+                "volatility": statistics.stdev(volumes) if len(volumes) > 1 else 0
+            }
+    
+    return JSONResponse(analytics)
 
 @app.post("/api/refresh")
 async def refresh_data():

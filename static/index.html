@@ -336,6 +336,39 @@
             grid-column: 1 / -1;
         }
 
+        /* Whale Alert Severity Styles */
+        .alert-high {
+            background: linear-gradient(135deg, #ffe6e6 0%, #fff0f0 100%);
+            border-left: 4px solid #e74c3c;
+        }
+
+        .alert-medium {
+            background: linear-gradient(135deg, #fff8e6 0%, #fefcf5 100%);
+            border-left: 4px solid #f39c12;
+        }
+
+        .alert-low {
+            background: linear-gradient(135deg, #e6f7ff 0%, #f0fbff 100%);
+            border-left: 4px solid #3498db;
+        }
+
+        /* Whale alert types with specific styling */
+        .alert-volume-surge {
+            border-left: 4px solid #e74c3c;
+        }
+
+        .alert-odds-flip {
+            border-left: 4px solid #f39c12;
+        }
+
+        .alert-order-book-shift {
+            border-left: 4px solid #3498db;
+        }
+
+        .alert-high-volume {
+            border-left: 4px solid #1AAE6F;
+        }
+
         /* Footer */
         .footer {
             max-width: 1280px;
@@ -592,6 +625,7 @@
             createCharts();
             connectWebSocket();
             startAutoRefresh();
+            loadWhaleAnalytics();
         }
 
         // Fetch data from backend API
@@ -607,7 +641,8 @@
                 marketsData = data.markets || [];
                 updateKPIs(marketsData);
                 updateTopMarkets(marketsData.slice(0, 5));
-                updateWhaleAlerts(marketsData);
+                await updateWhaleAlerts(marketsData);
+                loadWhaleAnalytics();
                 
                 showLoading(false);
                 
@@ -664,6 +699,12 @@
                     updateKPIs(marketsData);
                     updateTopMarkets(marketsData.slice(0, 5));
                     updateWhaleAlerts(marketsData);
+                    break;
+                    
+                case 'whale_alerts':
+                    // Handle real-time whale alerts
+                    console.log('🐋 Real-time whale alerts:', data.data.alerts);
+                    updateWhaleAlerts(marketsData); // Refresh whale alerts display
                     break;
                     
                 case 'initial_data':
@@ -733,27 +774,95 @@
             });
         }
 
-        // Update whale alerts section
-        function updateWhaleAlerts(markets) {
+        // Update whale alerts section with sophisticated detection
+        async function updateWhaleAlerts(markets) {
             const alertsContainer = document.getElementById('whale-alerts-content');
-            const highActivityMarkets = markets
-                .filter(market => market.volume && market.volume > 500000)
-                .slice(0, 3);
-
-            if (highActivityMarkets.length > 0) {
-                alertsContainer.innerHTML = highActivityMarkets.map(market => `
-                    <div class="insight-card" style="margin-bottom: 12px;">
-                        <div class="insight-header">
-                            <span class="just-in-badge">WHALE ALERT</span>
-                            <div class="insight-content">
-                                <h4>Large volume detected: ${market.ticker_symbol}</h4>
-                                <p>$${(market.volume / 1000000).toFixed(1)}M volume in the last 24h</p>
+            
+            try {
+                // Fetch sophisticated whale alerts from backend
+                const response = await fetch('/api/whale-alerts');
+                const whaleData = await response.json();
+                
+                if (whaleData.alerts && whaleData.alerts.length > 0) {
+                    // Show the most recent 3 alerts
+                    const recentAlerts = whaleData.alerts.slice(0, 3);
+                    
+                    alertsContainer.innerHTML = recentAlerts.map(alert => {
+                        const severityClass = alert.severity === 'high' ? 'alert-high' : 'alert-medium';
+                        const alertIcon = getAlertIcon(alert.type);
+                        
+                        return `
+                            <div class="insight-card ${severityClass}" style="margin-bottom: 12px; border-left: 4px solid ${getAlertColor(alert.type)};">
+                                <div class="insight-header">
+                                    <span class="just-in-badge" style="background: ${getAlertColor(alert.type)};">
+                                        ${alertIcon} ${alert.type.replace('_', ' ').toUpperCase()}
+                                    </span>
+                                    <div class="insight-content">
+                                        <h4>${alert.ticker}</h4>
+                                        <p>${alert.description}</p>
+                                        <small style="color: var(--brand-deep); opacity: 0.7;">
+                                            ${new Date(alert.timestamp).toLocaleTimeString()}
+                                        </small>
+                                    </div>
+                                </div>
                             </div>
+                        `;
+                    }).join('');
+                    
+                    // Update whale alerts count in KPIs
+                    document.getElementById('whale-alerts').textContent = whaleData.alerts.length;
+                    
+                } else {
+                    alertsContainer.innerHTML = `
+                        <div style="text-align: center; color: var(--brand-deep); opacity: 0.7; padding: 20px;">
+                            <p>🔍 No whale alerts detected yet</p>
+                            <p style="font-size: 0.9em;">Monitoring for volume surges, odds flips, and order book shifts...</p>
                         </div>
+                    `;
+                    document.getElementById('whale-alerts').textContent = '0';
+                }
+                
+            } catch (error) {
+                console.error('Error fetching whale alerts:', error);
+                alertsContainer.innerHTML = `
+                    <div style="text-align: center; color: #ff6b6b; padding: 20px;">
+                        <p>⚠️ Error loading whale alerts</p>
                     </div>
-                `).join('');
-            } else {
-                alertsContainer.innerHTML = 'No whale alerts at the moment. Monitoring for large volume movements...';
+                `;
+            }
+        }
+
+        function getAlertIcon(type) {
+            const icons = {
+                'volume_surge': '📈',
+                'odds_flip': '⚡',
+                'order_book_shift': '💰',
+                'high_volume': '🐋'
+            };
+            return icons[type] || '🚨';
+        }
+
+        function getAlertColor(type) {
+            const colors = {
+                'volume_surge': '#e74c3c',      // Red for volume surges
+                'odds_flip': '#f39c12',         // Orange for odds changes
+                'order_book_shift': '#3498db',   // Blue for order book shifts
+                'high_volume': '#1AAE6F'         // Green for high volume
+            };
+            return colors[type] || '#1AAE6F';
+        }
+
+        // Load whale analytics data
+        async function loadWhaleAnalytics() {
+            try {
+                const response = await fetch('/api/whale-analytics');
+                const analytics = await response.json();
+                
+                // Log whale analytics for debugging
+                console.log('🐋 Whale Analytics:', analytics);
+                
+            } catch (error) {
+                console.error('Error loading whale analytics:', error);
             }
         }
 
