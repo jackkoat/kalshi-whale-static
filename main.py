@@ -416,19 +416,26 @@ async def get_top_markets():
 async def get_top5_markets_detailed():
     """Get top 5 markets with detailed card information for the frontend"""
     
-    # Demo market data since we don't have access to actual Kalshi API outcomes
+    # Demo market data matching the React component structure
     demo_markets = [
         {
             "id": "btc-2024-high",
             "question": "How high will Bitcoin get this year?",
             "category": "Crypto",
             "last_update": datetime.now().isoformat(),
-            "volume": 19806091,
+            "volume": 19842514,
+            "cadence": "Annually",
+            "trending": True,
             "outcomes": [
                 {
                     "title": "YES",
                     "description": "$130,000 or above",
-                    "probability": 28
+                    "probability": 0.29
+                },
+                {
+                    "title": "NO", 
+                    "description": "Below $130,000",
+                    "probability": 0.71
                 }
             ],
             "high_volume": True,
@@ -437,16 +444,23 @@ async def get_top5_markets_detailed():
             "recent": True
         },
         {
-            "id": "btc-when-low",
-            "question": "When will Bitcoin reach $100,000 for the first time?",
-            "category": "Crypto",
+            "id": "eth-flip-2024",
+            "question": "Will ETH flip $5,000 by Q4?",
+            "category": "Crypto", 
             "last_update": datetime.now().isoformat(),
-            "volume": 8523450,
+            "volume": 12500321,
+            "cadence": "Quarterly",
+            "trending": False,
             "outcomes": [
                 {
                     "title": "YES",
-                    "description": "Before June 2025",
-                    "probability": 43
+                    "description": "$5,000 or above",
+                    "probability": 0.41
+                },
+                {
+                    "title": "NO",
+                    "description": "Below $5,000", 
+                    "probability": 0.59
                 }
             ],
             "high_volume": True,
@@ -455,39 +469,43 @@ async def get_top5_markets_detailed():
             "recent": True
         },
         {
-            "id": "btc-2024-low",
-            "question": "How low will Bitcoin go this year?",
+            "id": "btc-when-100k",
+            "question": "When will Bitcoin reach $100,000 for the first time?",
             "category": "Crypto",
-            "last_update": datetime.now().isoformat(),
-            "volume": 6345789,
+            "last_update": datetime.now().isoformat(), 
+            "volume": 8523450,
+            "cadence": "Annually",
+            "trending": True,
             "outcomes": [
                 {
-                    "title": "NO",
-                    "description": "Below $70,000",
-                    "probability": 52
+                    "title": "YES",
+                    "description": "Before June 2025",
+                    "probability": 0.43
                 }
             ],
-            "high_volume": False,
-            "trending": False,
-            "high_liquidity": True,
-            "recent": False
+            "high_volume": True,
+            "trending": True,
+            "high_liquidity": False,
+            "recent": True
         },
         {
-            "id": "trump-2024",
+            "id": "trump-crypto-2024",
             "question": "Will Donald Trump create a new crypto before election day?",
             "category": "Politics",
             "last_update": datetime.now().isoformat(),
             "volume": 12745632,
+            "cadence": "Election Cycle", 
+            "trending": True,
             "outcomes": [
                 {
                     "title": "YES",
                     "description": "Trump launches crypto coin",
-                    "probability": 76
+                    "probability": 0.76
                 },
                 {
                     "title": "NO",
                     "description": "No new crypto announced",
-                    "probability": 24
+                    "probability": 0.24
                 }
             ],
             "high_volume": True,
@@ -496,16 +514,18 @@ async def get_top5_markets_detailed():
             "recent": True
         },
         {
-            "id": "market-momentum",
+            "id": "market-cap-4t",
             "question": "Will crypto market cap exceed $4 trillion by December 2024?",
             "category": "Crypto",
             "last_update": datetime.now().isoformat(),
             "volume": 4321876,
+            "cadence": "Annually",
+            "trending": False,
             "outcomes": [
                 {
                     "title": "YES",
                     "description": "Total crypto market > $4T",
-                    "probability": 38
+                    "probability": 0.38
                 }
             ],
             "high_volume": False,
