@@ -1,29 +1,42 @@
 {
-  "name": "kalshi-whale-static",
-  "version": "1.0.0",
-  "description": "Real-time Crypto Whale Tracker for Kalshi Prediction Markets - Static Version",
-  "main": "index.html",
-  "scripts": {
-    "dev": "python -m http.server 8000",
-    "build": "echo 'Static site - no build required'",
-    "deploy": "echo 'Deploy to Vercel: vercel --prod'"
-  },
-  "keywords": [
-    "kalshi",
-    "crypto",
-    "whale",
-    "tracking",
-    "prediction",
-    "markets",
-    "bitcoin",
-    "ethereum"
-  ],
-  "author": "MiniMax Agent",
-  "license": "MIT",
-  "devDependencies": {
-    "vercel": "^28.16.0"
-  },
-  "engines": {
-    "node": ">=14.0.0"
-  }
+    "name": "kalshi-whale-backend",
+    "version": "1.0.0",
+    "description": "Real-time Crypto Whale Tracker Backend for Kalshi Prediction Markets",
+    "main": "main.py",
+    "scripts": {
+        "start": "python main.py",
+        "dev": "python main.py",
+        "test": "python -m pytest tests/",
+        "lint": "python -m flake8 main.py",
+        "format": "python -m black main.py"
+    },
+    "keywords": [
+        "fastapi",
+        "websocket",
+        "crypto",
+        "whale-tracker",
+        "kalshi",
+        "real-time"
+    ],
+    "author": "MiniMax Agent",
+    "license": "MIT",
+    "dependencies": {
+        "fastapi": "^0.104.1",
+        "uvicorn": "^0.24.0",
+        "websockets": "^12.0",
+        "requests": "^2.31.0",
+        "python-multipart": "^0.0.6",
+        "jinja2": "^3.1.2",
+        "aiofiles": "^23.2.1",
+        "python-dotenv": "^1.0.0",
+        "pydantic": "^2.5.0"
+    },
+    "devDependencies": {
+        "pytest": "^7.4.3",
+        "flake8": "^6.1.0",
+        "black": "^23.11.0"
+    },
+    "engines": {
+        "python": ">=3.8"
+    }
 }
