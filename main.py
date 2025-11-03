@@ -420,20 +420,15 @@ async def get_top5_markets_detailed():
     demo_markets = [
         {
             "id": "btc-2024-high",
-            "question": "Will Bitcoin reach $100,000 by the end of 2024?",
+            "question": "How high will Bitcoin get this year?",
             "category": "Crypto",
             "last_update": datetime.now().isoformat(),
             "volume": 19806091,
             "outcomes": [
                 {
                     "title": "YES",
-                    "description": "Bitcoin closes above $100,000",
+                    "description": "$130,000 or above",
                     "probability": 28
-                },
-                {
-                    "title": "NO",
-                    "description": "Bitcoin stays below $100,000",
-                    "probability": 72
                 }
             ],
             "high_volume": True,
@@ -442,21 +437,16 @@ async def get_top5_markets_detailed():
             "recent": True
         },
         {
-            "id": "trump-2024",
-            "question": "Will Donald Trump be convicted before election day?",
-            "category": "Politics",
+            "id": "btc-when-low",
+            "question": "When will Bitcoin reach $100,000 for the first time?",
+            "category": "Crypto",
             "last_update": datetime.now().isoformat(),
             "volume": 8523450,
             "outcomes": [
                 {
                     "title": "YES",
-                    "description": "Trump convicted by Nov 5, 2024",
+                    "description": "Before June 2025",
                     "probability": 43
-                },
-                {
-                    "title": "NO",
-                    "description": "No conviction by election day",
-                    "probability": 57
                 }
             ],
             "high_volume": True,
@@ -465,21 +455,16 @@ async def get_top5_markets_detailed():
             "recent": True
         },
         {
-            "id": "fed-rate-2024",
-            "question": "Will the Federal Reserve cut interest rates to 0% by December 2024?",
-            "category": "Economy",
+            "id": "btc-2024-low",
+            "question": "How low will Bitcoin go this year?",
+            "category": "Crypto",
             "last_update": datetime.now().isoformat(),
             "volume": 6345789,
             "outcomes": [
                 {
-                    "title": "YES",
-                    "description": "Fed funds rate at 0%",
-                    "probability": 15
-                },
-                {
                     "title": "NO",
-                    "description": "Rate stays above 0%",
-                    "probability": 85
+                    "description": "Below $70,000",
+                    "probability": 52
                 }
             ],
             "high_volume": False,
@@ -488,21 +473,21 @@ async def get_top5_markets_detailed():
             "recent": False
         },
         {
-            "id": "election-result",
-            "question": "Will Kamala Harris win the 2024 Presidential election?",
+            "id": "trump-2024",
+            "question": "Will Donald Trump create a new crypto before election day?",
             "category": "Politics",
             "last_update": datetime.now().isoformat(),
             "volume": 12745632,
             "outcomes": [
                 {
                     "title": "YES",
-                    "description": "Harris wins election",
-                    "probability": 52
+                    "description": "Trump launches crypto coin",
+                    "probability": 76
                 },
                 {
                     "title": "NO",
-                    "description": "Harris loses election",
-                    "probability": 48
+                    "description": "No new crypto announced",
+                    "probability": 24
                 }
             ],
             "high_volume": True,
@@ -511,21 +496,16 @@ async def get_top5_markets_detailed():
             "recent": True
         },
         {
-            "id": "inflation-target",
-            "question": "Will US inflation fall below 2% by Q4 2024?",
-            "category": "Economy",
+            "id": "market-momentum",
+            "question": "Will crypto market cap exceed $4 trillion by December 2024?",
+            "category": "Crypto",
             "last_update": datetime.now().isoformat(),
             "volume": 4321876,
             "outcomes": [
                 {
                     "title": "YES",
-                    "description": "CPI below 2% annualized",
+                    "description": "Total crypto market > $4T",
                     "probability": 38
-                },
-                {
-                    "title": "NO",
-                    "description": "Inflation stays above 2%",
-                    "probability": 62
                 }
             ],
             "high_volume": False,
