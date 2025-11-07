@@ -2,9 +2,9 @@
 
 import { useState } from 'react'
 import { motion } from 'framer-motion'
-import { Market } from '../../../types'
-import { formatCurrency, formatRelativeTime, formatProbability, getMarketCategoryColor } from '../../../lib/utils'
-import { cn } from '../../../lib/utils'
+import { Market, Outcome } from '../types'
+import { formatCurrency, formatRelativeTime, formatProbability, getMarketCategoryColor } from '../lib/utils'
+import { cn } from '../lib/utils'
 import { 
   ArrowUpIcon, 
   ArrowDownIcon, 
@@ -30,8 +30,8 @@ export function MarketCard({
 }: MarketCardProps) {
   const [isHovered, setIsHovered] = useState(false)
   
-  const yesOutcome = market.outcomes.find(o => o.title === 'YES')
-  const noOutcome = market.outcomes.find(o => o.title === 'NO')
+  const yesOutcome = market.outcomes.find((o: Outcome) => o.title === 'YES')
+  const noOutcome = market.outcomes.find((o: Outcome) => o.title === 'NO')
   
   const categoryColor = getMarketCategoryColor(market.category)
   const volumeFormatted = formatCurrency(market.volume)
@@ -215,7 +215,7 @@ export function MarketCardCompact({
   onOutcomeClick, 
   className 
 }: MarketCardProps) {
-  const yesOutcome = market.outcomes.find(o => o.title === 'YES')
+  const yesOutcome = market.outcomes.find((o: Outcome) => o.title === 'YES')
   
   return (
     <motion.div

@@ -84,8 +84,7 @@ export default function Home() {
       <header className="header fixed top-0 left-0 right-0 z-50 bg-white/80 transition-all duration-300">
         <nav className="max-w-7xl mx-auto px-6 flex items-center justify-between h-20">
           <Link href="/" className="flex items-center gap-3 text-2xl font-extrabold text-brand-green-deep">
-            <ChartBarIcon className="w-8 h-8 text-brand-green-primary" />
-            KalshiWhale
+            <img src="/logo.png" alt="KalshiWhale Logo" className="w-32 h-32" />
           </Link>
 
           <ul className="hidden md:flex list-none gap-8 items-center">

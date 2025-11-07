@@ -2,11 +2,12 @@
 
 import { useState, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { useMarkets, useWhaleAlerts, useWebSocket } from '../../../lib/react-query'
-import { useMarketStore, useWhaleStore, useUIStore } from '../../../store'
+import { useMarkets, useWhaleAlerts, useWebSocket } from '../lib/react-query'
+import { useMarketStore, useWhaleStore, useUIStore } from '../store'
+import { Market } from '../types'
 import { MarketCard, MarketCardCompact } from './MarketCard'
 import { WhaleSignalFeed, LiveSignalIndicator } from './WhaleSignalCard'
-import { cn, formatNumber } from '../../../lib/utils'
+import { cn, formatNumber } from '../lib/utils'
 import {
   Bars3Icon,
   XMarkIcon,
@@ -102,8 +103,8 @@ export function Dashboard() {
   const metrics = {
     totalMarkets: filteredMarkets.length,
     activeWhales: activeSignals.length,
-    totalVolume: filteredMarkets.reduce((sum, m) => sum + m.volume, 0),
-    avgLiquidity: filteredMarkets.reduce((sum, m) => sum + (m.volume || 0), 0) / Math.max(filteredMarkets.length, 1)
+    totalVolume: filteredMarkets.reduce((sum: number, m: Market) => sum + m.volume, 0),
+    avgLiquidity: filteredMarkets.reduce((sum: number, m: Market) => sum + (m.volume || 0), 0) / Math.max(filteredMarkets.length, 1)
   }
 
   const sidebarVariants = {

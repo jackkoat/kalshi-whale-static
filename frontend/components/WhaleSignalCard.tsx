@@ -1,9 +1,9 @@
 'use client'
 
 import { motion, AnimatePresence } from 'framer-motion'
-import { WhaleSignal } from '../../../types'
-import { formatRelativeTime, getSeverityColor, formatPercentage, formatLargeNumber } from '../../../lib/utils'
-import { cn } from '../../../lib/utils'
+import { WhaleSignal } from '../types'
+import { formatRelativeTime, getSeverityColor, formatPercentage, formatLargeNumber } from '../lib/utils'
+import { cn } from '../lib/utils'
 import { 
   ExclamationTriangleIcon,
   FireIcon,
