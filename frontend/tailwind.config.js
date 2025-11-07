@@ -8,6 +8,7 @@ module.exports = {
   theme: {
     extend: {
       colors: {
+        border: '#E8EDE9',
         // Kalshi Color System
         kalshi: {
           50: '#f0fdf9',

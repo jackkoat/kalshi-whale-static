@@ -2,17 +2,17 @@
 
 import { useState } from 'react'
 import { motion } from 'framer-motion'
-import { Market } from '@/types'
-import { formatCurrency, formatRelativeTime, formatProbability, getMarketCategoryColor } from '@/lib/utils'
-import { cn } from '@/lib/utils'
+import { Market } from '../../../types'
+import { formatCurrency, formatRelativeTime, formatProbability, getMarketCategoryColor } from '../../../lib/utils'
+import { cn } from '../../../lib/utils'
 import { 
   ArrowUpIcon, 
   ArrowDownIcon, 
   FireIcon, 
   ChartBarIcon,
   ClockIcon,
-  TrendingUpIcon,
-  TrendingDownIcon
+  ArrowTrendingUpIcon,
+  ArrowTrendingDownIcon
 } from '@heroicons/react/24/outline'
 
 interface MarketCardProps {
@@ -191,7 +191,7 @@ export function MarketCard({
             {/* Liquidity Indicator */}
             {market.high_liquidity && (
               <div className="flex items-center text-green-600">
-                <TrendingUpIcon className="w-3 h-3 mr-1" />
+                <ArrowTrendingUpIcon className="w-3 h-3 mr-1" />
                 High Liquidity
               </div>
             )}

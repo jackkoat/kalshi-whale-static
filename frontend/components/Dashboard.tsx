@@ -2,19 +2,18 @@
 
 import { useState, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { useMarkets, useWhaleAlerts, useWebSocket } from '@/lib/react-query'
-import { useMarketStore, useWhaleStore, useUIStore } from '@/store'
+import { useMarkets, useWhaleAlerts, useWebSocket } from '../../../lib/react-query'
+import { useMarketStore, useWhaleStore, useUIStore } from '../../../store'
 import { MarketCard, MarketCardCompact } from './MarketCard'
 import { WhaleSignalFeed, LiveSignalIndicator } from './WhaleSignalCard'
-import { cn } from '@/lib/utils'
-import { formatNumber } from '@/lib/utils'
+import { cn, formatNumber } from '../../../lib/utils'
 import {
   Bars3Icon,
   XMarkIcon,
   ChartBarIcon,
   FireIcon,
   CurrencyDollarIcon,
-  TrendingUpIcon,
+  ArrowTrendingUpIcon,
   BellIcon,
   CogIcon
 } from '@heroicons/react/24/outline'
@@ -95,7 +94,7 @@ export function Dashboard() {
 
   useEffect(() => {
     if (whaleData?.data) {
-      useWhaleStore.getState().setActiveSignals(whaleData.data.alerts || [])
+      useWhaleStore.getState().setActiveSignals(whaleData.data)
     }
   }, [whaleData])
 
@@ -359,7 +358,7 @@ export function Dashboard() {
                   ) : marketsError ? (
                     <div className="text-center py-12">
                       <div className="text-red-600 mb-2">Error loading markets</div>
-                      <div className="text-sm text-neutral-600">{marketsError.message}</div>
+                      <div className="text-sm text-neutral-600">{marketsError}</div>
                     </div>
                   ) : (
                     <div className="data-grid">
@@ -372,7 +371,8 @@ export function Dashboard() {
                               type: 'info',
                               title: 'Bet Placed',
                               message: `Bet ${outcome} placed on market ${marketId}`,
-                              auto_close: true
+                              auto_close: true,
+                              read: false
                             })
                           }}
                         />
@@ -450,7 +450,7 @@ export function Dashboard() {
                   transition={{ duration: 0.3 }}
                 >
                   <div className="text-center py-12">
-                    <TrendingUpIcon className="w-12 h-12 text-neutral-400 mx-auto mb-4" />
+                    <ArrowTrendingUpIcon className="w-12 h-12 text-neutral-400 mx-auto mb-4" />
                     <h3 className="text-lg font-medium text-neutral-900 mb-2">
                       Advanced Analytics
                     </h3>

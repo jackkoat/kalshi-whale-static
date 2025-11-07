@@ -10,7 +10,6 @@ export interface Market {
   trending: boolean;
   outcomes: Outcome[];
   high_volume: boolean;
-  trending: boolean;
   high_liquidity: boolean;
   recent: boolean;
   status: 'open' | 'closed' | 'expired';
@@ -44,6 +43,7 @@ export interface WhaleSignal {
   };
   timestamp: string;
   confidence: number; // 0-100%
+  market_impact?: 'high' | 'medium' | 'low';
 }
 
 export interface MarketMicrostructure {
