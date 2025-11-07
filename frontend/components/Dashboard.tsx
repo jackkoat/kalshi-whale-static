@@ -128,11 +128,8 @@ export function Dashboard() {
               </button>
               
               <div className="flex items-center space-x-2">
-                <div className="w-8 h-8 bg-gradient-to-br from-brand-green-primary to-brand-green-deep rounded-lg flex items-center justify-center">
-                  <span className="text-white font-bold text-sm">KW</span>
-                </div>
+                <img src="/logo.png" alt="KalshiWhale Logo" className="hidden md:block w-32 h-32" />
                 <h1 className="text-xl font-bold text-gradient">
-                  KalshiWhale
                 </h1>
               </div>
             </div>
