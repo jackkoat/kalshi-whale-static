@@ -1,5 +1,3 @@
-// Core types for KalshiWhale platform
-
 export interface Market {
   id: string;
   question: string;
@@ -7,9 +5,9 @@ export interface Market {
   last_update: string;
   volume: number;
   cadence: string;
-  trending: boolean;
   outcomes: Outcome[];
   high_volume: boolean;
+  trending: boolean;
   high_liquidity: boolean;
   recent: boolean;
   status: 'open' | 'closed' | 'expired';
@@ -42,7 +40,7 @@ export interface WhaleSignal {
     direction?: 'up' | 'down';
   };
   timestamp: string;
-  confidence: number; // 0-100%
+  confidence: number;
   market_impact?: 'high' | 'medium' | 'low';
 }
 
@@ -108,7 +106,6 @@ export interface InsightCard {
   read: boolean;
 }
 
-// API Response types
 export interface ApiResponse<T> {
   data: T;
   timestamp: string;
@@ -121,7 +118,8 @@ export interface MarketsResponse extends ApiResponse<Market[]> {
   filters_applied?: string[];
 }
 
-export interface WhaleAlertsResponse extends ApiResponse<WhaleSignal[]> {
+export interface WhaleAlertsData {
+  alerts: WhaleSignal[];
   count: number;
   whale_signals_count: number;
   high_volume_count: number;
@@ -139,6 +137,8 @@ export interface WhaleAlertsResponse extends ApiResponse<WhaleSignal[]> {
   };
 }
 
+export interface WhaleAlertsResponse extends ApiResponse<WhaleAlertsData> {}
+
 export interface StatusResponse {
   status: string;
   timestamp: string;
@@ -150,7 +150,6 @@ export interface StatusResponse {
   version: string;
 }
 
-// WebSocket message types
 export interface WebSocketMessage {
   type: 'initial_data' | 'market_update' | 'whale_alerts' | 'heartbeat' | 'insight';
   data: any;
@@ -175,7 +174,6 @@ export interface WhaleAlert extends WebSocketMessage {
   };
 }
 
-// UI State types
 export interface UIState {
   sidebar_open: boolean;
   filters: {
@@ -193,11 +191,10 @@ export interface Notification {
   title: string;
   message: string;
   timestamp: string;
-  read: boolean;
+  read?: boolean;
   auto_close?: boolean;
 }
 
-// Filter and sorting types
 export interface MarketFilters {
   category?: string;
   status?: 'open' | 'closed' | 'expired';
@@ -216,7 +213,6 @@ export interface SortOptions {
   direction: 'asc' | 'desc';
 }
 
-// Chart data types
 export interface ChartDataPoint {
   timestamp: string;
   value: number;
@@ -242,7 +238,6 @@ export interface VolumeChart {
   timestamp: string;
 }
 
-// Performance metrics
 export interface PerformanceMetrics {
   api_response_time: number;
   websocket_latency: number;
@@ -252,7 +247,6 @@ export interface PerformanceMetrics {
   active_users: number;
 }
 
-// Configuration types
 export interface AppConfig {
   api: {
     base_url: string;

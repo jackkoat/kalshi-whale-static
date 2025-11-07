@@ -2,7 +2,7 @@
 
 import { useState } from 'react'
 import { motion } from 'framer-motion'
-import { Market, Outcome } from '../types'
+import { Market } from '../types'
 import { formatCurrency, formatRelativeTime, formatProbability, getMarketCategoryColor } from '../lib/utils'
 import { cn } from '../lib/utils'
 import { 
@@ -30,8 +30,8 @@ export function MarketCard({
 }: MarketCardProps) {
   const [isHovered, setIsHovered] = useState(false)
   
-  const yesOutcome = market.outcomes.find((o: Outcome) => o.title === 'YES')
-  const noOutcome = market.outcomes.find((o: Outcome) => o.title === 'NO')
+  const yesOutcome = market.outcomes.find(o => o.title === 'YES')
+  const noOutcome = market.outcomes.find(o => o.title === 'NO')
   
   const categoryColor = getMarketCategoryColor(market.category)
   const volumeFormatted = formatCurrency(market.volume)
@@ -49,10 +49,8 @@ export function MarketCard({
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.3 }}
     >
-      {/* Header */}
       <div className="market-card-header">
         <div className="flex-1">
-          {/* Category Badge */}
           <div className="flex items-center space-x-2 mb-2">
             <span className={cn('px-2 py-1 rounded-full text-xs font-medium', categoryColor)}>
               {market.category}
@@ -65,13 +63,11 @@ export function MarketCard({
             )}
           </div>
           
-          {/* Market Question */}
           <h3 className="market-card-title">
             {market.question}
           </h3>
         </div>
         
-        {/* Status & Volume */}
         <div className="flex flex-col items-end space-y-1">
           <span className={cn(
             'px-2 py-1 rounded-full text-xs font-medium',
@@ -86,11 +82,9 @@ export function MarketCard({
         </div>
       </div>
 
-      {/* Probability Outcomes */}
       {yesOutcome && noOutcome && (
         <div className="space-y-3">
           <div className="grid grid-cols-2 gap-3">
-            {/* YES Outcome */}
             <div className="space-y-2">
               <div className="flex items-center justify-between">
                 <span className="text-sm font-medium text-neutral-700">YES</span>
@@ -121,7 +115,6 @@ export function MarketCard({
               </p>
             </div>
 
-            {/* NO Outcome */}
             <div className="space-y-2">
               <div className="flex items-center justify-between">
                 <span className="text-sm font-medium text-neutral-700">NO</span>
@@ -153,7 +146,6 @@ export function MarketCard({
             </div>
           </div>
 
-          {/* Action Buttons */}
           <div className="flex space-x-2">
             <button
               onClick={() => onOutcomeClick?.('YES', market.id)}
@@ -171,7 +163,6 @@ export function MarketCard({
         </div>
       )}
 
-      {/* Market Metadata */}
       {showDetails && (
         <div className="market-card-meta pt-3 border-t border-gray-100">
           <div className="flex items-center justify-between w-full text-xs text-neutral-500">
@@ -188,7 +179,6 @@ export function MarketCard({
               )}
             </div>
             
-            {/* Liquidity Indicator */}
             {market.high_liquidity && (
               <div className="flex items-center text-green-600">
                 <ArrowTrendingUpIcon className="w-3 h-3 mr-1" />
@@ -199,7 +189,6 @@ export function MarketCard({
         </div>
       )}
 
-      {/* Hover Effects */}
       <motion.div
         className="absolute inset-0 bg-gradient-to-r from-brand-green-primary/5 to-brand-green-deep/5 rounded-xl opacity-0"
         animate={{ opacity: isHovered ? 1 : 0 }}
@@ -209,13 +198,12 @@ export function MarketCard({
   )
 }
 
-// Compact version for lists
 export function MarketCardCompact({ 
   market, 
   onOutcomeClick, 
   className 
 }: MarketCardProps) {
-  const yesOutcome = market.outcomes.find((o: Outcome) => o.title === 'YES')
+  const yesOutcome = market.outcomes.find(o => o.title === 'YES')
   
   return (
     <motion.div

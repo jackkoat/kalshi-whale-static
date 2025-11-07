@@ -20,6 +20,32 @@ interface WhaleSignalCardProps {
   compact?: boolean
 }
 
+function getWhaleCopy(signal: WhaleSignal): string {
+  const { data, ticker } = signal;
+  const marketName = ticker.replace('BTC', 'Bitcoin').replace('ETH', 'Ethereum');
+
+  switch (signal.type) {
+    case 'volume_surge':
+      const value = formatLargeNumber(data.current_value || 0);
+      return `JUST IN: Someone just put ${value} on ${marketName}. Volume is ${data.growth_multiple?.toFixed(1)}x normal.`;
+    
+    case 'odds_flip':
+      const percent = formatPercentage((data.change_percent || 0) / 100);
+      const direction = data.direction === 'up' ? 'surged' : 'dropped';
+      return `JUST IN: Odds for ${marketName} just ${direction} by ${percent}.`;
+    
+    case 'order_book_shift':
+      const change = formatPercentage((data.change_percent || 0) / 100);
+      return `JUST IN: A whale just shifted the order book for ${marketName} by ${change}.`;
+    
+    case 'liquidity_cluster':
+      return `JUST IN: Large liquidity cluster forming on ${marketName}. A move might be imminent.`;
+    
+    default:
+      return signal.description;
+  }
+}
+
 export function WhaleSignalCard({ 
   signal, 
   onMarkAsRead, 
@@ -43,32 +69,13 @@ export function WhaleSignalCard({
     }
   }
 
-  const getSignalDescription = () => {
-    const { data } = signal
-    
-    switch (signal.type) {
-      case 'volume_surge':
-        return `${formatLargeNumber(data.current_value || 0)} volume detected (${data.growth_multiple?.toFixed(1)}x normal)`
-      
-      case 'odds_flip':
-        return `${formatPercentage((data.change_percent || 0) / 100)} probability ${data.direction} movement`
-      
-      case 'order_book_shift':
-        return `${formatPercentage((data.change_percent || 0) / 100)} order book depth change`
-      
-      case 'liquidity_cluster':
-        return `Large liquidity cluster formation detected`
-      
-      default:
-        return signal.description
-    }
-  }
+  const signalDescription = getWhaleCopy(signal);
 
   if (compact) {
     return (
       <motion.div
         className={cn(
-          'flex items-center space-x-3 p-3 glass-card',
+          'flex items-start space-x-3 p-3 glass-card border border-gray-100',
           severityColors,
           className
         )}
@@ -79,9 +86,9 @@ export function WhaleSignalCard({
         transition={{ duration: 0.2 }}
       >
         <div className={cn(
-          'p-2 rounded-full',
+          'p-2 rounded-full mt-1',
           signal.severity === 'high' ? 'bg-red-100 text-red-600' :
-          signal.severity === 'medium' ? 'bg-yellow-100 text-yellow-600' :
+          signal.severity === 'medium' ? 'bg-amber-100 text-amber-600' :
           'bg-green-100 text-green-600'
         )}>
           {getSignalIcon()}
@@ -89,23 +96,23 @@ export function WhaleSignalCard({
         
         <div className="flex-1 min-w-0">
           <div className="flex items-center justify-between">
-            <h4 className="text-sm font-medium truncate">
+            <h4 className="text-sm font-medium truncate text-neutral-800">
               {signal.ticker}
             </h4>
-            <span className="text-xs text-neutral-500">
+            <span className="text-xs text-neutral-500 flex-shrink-0 ml-2">
               {formatRelativeTime(signal.timestamp)}
             </span>
           </div>
-          <p className="text-xs text-neutral-600 truncate">
-            {getSignalDescription()}
+          <p className="text-xs text-neutral-600">
+            {signalDescription}
           </p>
         </div>
         
-        <div className="flex items-center space-x-2">
+        <div className="flex items-center space-x-2 mt-1">
           <span className={cn(
-            'px-2 py-1 rounded-full text-xs font-medium',
+            'px-2 py-0.5 rounded-full text-xs font-medium',
             signal.severity === 'high' ? 'bg-red-100 text-red-800' :
-            signal.severity === 'medium' ? 'bg-yellow-100 text-yellow-800' :
+            signal.severity === 'medium' ? 'bg-amber-100 text-amber-800' :
             'bg-green-100 text-green-800'
           )}>
             {signal.confidence}%
@@ -114,7 +121,7 @@ export function WhaleSignalCard({
       </motion.div>
     )
   }
-
+  
   return (
     <motion.div
       className={cn(
@@ -130,13 +137,12 @@ export function WhaleSignalCard({
       transition={{ duration: 0.3 }}
       layout
     >
-      {/* Header */}
       <div className="flex items-start justify-between">
         <div className="flex items-center space-x-3">
           <div className={cn(
             'p-2 rounded-full',
             signal.severity === 'high' ? 'bg-red-100 text-red-600' :
-            signal.severity === 'medium' ? 'bg-yellow-100 text-yellow-600' :
+            signal.severity === 'medium' ? 'bg-amber-100 text-amber-600' :
             'bg-green-100 text-green-600'
           )}>
             {getSignalIcon()}
@@ -150,7 +156,7 @@ export function WhaleSignalCard({
               <span className={cn(
                 'px-2 py-1 rounded-full text-xs font-medium',
                 signal.severity === 'high' ? 'bg-red-100 text-red-800' :
-                signal.severity === 'medium' ? 'bg-yellow-100 text-yellow-800' :
+                signal.severity === 'medium' ? 'bg-amber-100 text-amber-800' :
                 'bg-green-100 text-green-800'
               )}>
                 {signal.type.replace('_', ' ').toUpperCase()}
@@ -158,7 +164,7 @@ export function WhaleSignalCard({
             </div>
             
             <p className="text-sm text-neutral-600 mt-1">
-              {signal.description}
+              {signalDescription}
             </p>
           </div>
         </div>
@@ -176,7 +182,6 @@ export function WhaleSignalCard({
         </div>
       </div>
 
-      {/* Signal Details */}
       <div className="bg-white/50 rounded-lg p-3 space-y-2">
         <div className="grid grid-cols-2 gap-4 text-sm">
           <div>
@@ -216,11 +221,10 @@ export function WhaleSignalCard({
         </div>
       </div>
 
-      {/* Market Impact */}
       <div className="flex items-center justify-between pt-2 border-t border-white/30">
         <div className="flex items-center space-x-2 text-sm text-neutral-600">
           <ClockIcon className="w-4 h-4" />
-          <span>Market Impact: {signal.market_impact}</span>
+          <span>Market Impact: {signal.market_impact || 'N/A'}</span>
         </div>
         
         <div className="flex items-center space-x-1">
@@ -241,7 +245,6 @@ export function WhaleSignalCard({
   )
 }
 
-// Signal feed component for real-time updates
 interface WhaleSignalFeedProps {
   signals: WhaleSignal[]
   onMarkAsRead?: (id: string) => void
@@ -293,7 +296,6 @@ export function WhaleSignalFeed({
   )
 }
 
-// Live indicator for new signals
 interface LiveSignalIndicatorProps {
   isActive: boolean
   count: number
