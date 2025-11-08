@@ -36,7 +36,7 @@ export function useAlignedMarkets() {
     queryKey: ['alignedMarkets'],
     queryFn: async () => {
       // 1. Fetch the "Just In" trades (Channel 1)
-      const tradeData = await fetcher('/api/kalshi/trades?limit=100');
+      const tradeData = await fetcher('/api/kalshi/trades?limit=1000');
       const trades = tradeData.trades || [];
 
       // 2. Find all unique market tickers from those trades

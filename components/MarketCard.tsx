@@ -145,7 +145,7 @@ export function MarketCard({
           </div>
         </div>
 
-        <div className="flex space-x-2">
+        {/* <div className="flex space-x-2">
           <button
             onClick={() => onOutcomeClick?.('YES', market.id)}
             className="pill-button-yes flex-1"
@@ -158,7 +158,7 @@ export function MarketCard({
           >
             Bet NO
           </button>
-        </div>
+        </div> */}
       </div>
 
       {showDetails && (
@@ -169,7 +169,7 @@ export function MarketCard({
               
               {market.expiration_time && (
                 <div className="flex items-center">
-                  <span>Expires: {formatRelativeTime(market.expiration_time)}</span>
+                  <span>Expires: {new Date(market.expiration_time).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' })}</span>
                 </div>
               )}
             </div>
