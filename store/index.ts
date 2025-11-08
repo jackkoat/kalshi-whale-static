@@ -101,8 +101,12 @@ export const useMarketStore = create<MarketStore>()(
 
     // Actions
     setMarkets: (markets) => {
-      set({ markets, lastUpdate: new Date().toISOString() })
-      get().applyFilters()
+      const currentMarkets = get().markets;
+      // Prevent infinite loops by checking if markets are the same
+      if (JSON.stringify(currentMarkets) !== JSON.stringify(markets)) {
+        set({ markets, lastUpdate: new Date().toISOString() })
+        get().applyFilters()
+      }
     },
 
     setFilteredMarkets: (filteredMarkets) => {
@@ -137,7 +141,7 @@ export const useMarketStore = create<MarketStore>()(
     setError: (error) => set({ error }),
 
     applyFilters: () => {
-      const { markets, filters, sortOptions } = get()
+      const { markets, filters, sortOptions, filteredMarkets } = get()
       
       let filtered = [...markets]
 
@@ -179,7 +183,10 @@ export const useMarketStore = create<MarketStore>()(
         return sortOptions.direction === 'desc' ? -comparison : comparison
       })
 
-      set({ filteredMarkets: filtered })
+      // Prevent infinite loops by checking if filteredMarkets are the same
+      if (JSON.stringify(filteredMarkets) !== JSON.stringify(filtered)) {
+        set({ filteredMarkets: filtered })
+      }
     },
 
     refreshData: async () => {
@@ -232,7 +239,13 @@ export const useWhaleStore = create<WhaleStore>()(
       set({ signalTypes: updatedTypes })
     },
 
-    setActiveSignals: (signals) => set({ activeSignals: signals }),
+    setActiveSignals: (signals) => set(state => {
+      // Prevent infinite loops by checking if signals are the same
+      if (JSON.stringify(state.activeSignals) === JSON.stringify(signals)) {
+        return state;
+      }
+      return { activeSignals: signals };
+    }),
     setConfidenceThreshold: (threshold) => set({ confidenceThreshold: threshold }),
     toggleAutoAlerts: () => set(state => ({ autoAlerts: !state.autoAlerts })),
 

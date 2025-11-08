@@ -19,29 +19,6 @@ interface MarketCardProps {
   showDetails?: boolean
 }
 
-function useEventDetails(eventTicker: string) {
-  const [data, setData] = useState<{ title: string; category: string } | null>(null);
-
-  useEffect(() => {
-    if (!eventTicker) return;
-
-    async function fetchDetails() {
-      try {
-        const res = await fetch(`/api/kalshi/event/${eventTicker}`);
-        if (!res.ok) return;
-        const eventData = await res.json();
-        setData(eventData);
-      } catch (error) {
-        console.warn(`Failed to lazy-load event details for ${eventTicker}`, error);
-      }
-    }
-    
-    fetchDetails();
-  }, [eventTicker]);
-
-  return data;
-}
-
 export function MarketCard({ 
   market, 
   onOutcomeClick, 
@@ -50,13 +27,11 @@ export function MarketCard({
 }: MarketCardProps) {
   const [isHovered, setIsHovered] = useState(false);
   
-  const eventDetails = useEventDetails(market.event_ticker);
-
   const yesProbability = (market.last_price || 0) / 100;
   const noProbability = 1 - yesProbability;
   
-  const displayTitle = eventDetails?.title || market.title;
-  const displayCategory = eventDetails?.category || market.category || 'Crypto';
+  const displayTitle = market.title;
+  const displayCategory = market.category || 'Crypto';
   
   const categoryColor = getMarketCategoryColor(displayCategory);
   const volumeFormatted = formatCurrency(market.volume);
@@ -89,7 +64,7 @@ export function MarketCard({
           </div>
           
           <h3 className="market-card-title">
-            {displayTitle}
+            {market.title}
           </h3>
         </div>
         
@@ -227,10 +202,9 @@ export function MarketCardCompact({
   className 
 }: MarketCardProps) {
   const yesProbability = (market.last_price || 0) / 100;
-  const eventDetails = useEventDetails(market.event_ticker);
   
-  const displayTitle = eventDetails?.title || market.title;
-  const displayCategory = eventDetails?.category || market.category || 'Crypto';
+  const displayTitle = market.title;
+  const displayCategory = market.category || 'Crypto';
 
   return (
     <motion.div

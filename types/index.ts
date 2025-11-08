@@ -10,7 +10,7 @@ export interface Market {
   trending: boolean;
   high_liquidity: boolean;
   recent: boolean;
-  status: 'open' | 'closed' | 'expired' | 'active'; 
+  status: 'open' | 'closed' | 'expired' | 'active';
   expiry_date?: string;
   liquidity?: number;
   volume_millions?: number;
@@ -25,11 +25,19 @@ export interface Market {
   close_time: string;
 }
 
-export interface Event {
+export interface Trade {
+  count: number;
+  created_time: string;
+  no_price: number;
+  price: number;
+  taker_side: 'yes' | 'no';
   ticker: string;
-  title: string;
-  category_name: string;
-  status: string;
+  trade_id: string;
+  yes_price: number;
+}
+
+export interface AlignedTrade extends Trade, Partial<Market> {
+  // This combines a Trade with its (optional) Market details
 }
 
 export interface Outcome {
@@ -42,7 +50,7 @@ export interface Outcome {
 
 export interface WhaleSignal {
   id: string;
-  type: 'volume_surge' | 'odds_flip' | 'order_book_shift' | 'liquidity_cluster';
+  type: 'volume_surge' | 'odds_flip' | 'order_book_shift' | 'liquidity_cluster' | 'large_trade';
   market_id: string;
   ticker: string;
   severity: 'high' | 'medium' | 'low';
@@ -53,6 +61,7 @@ export interface WhaleSignal {
     change_percent?: number;
     growth_multiple?: number;
     direction?: 'up' | 'down';
+    trade_size?: number;
   };
   timestamp: string;
   confidence: number;
@@ -128,12 +137,25 @@ export interface ApiResponse<T> {
   message?: string;
 }
 
+export interface TradesResponse {
+  trades: Trade[];
+  cursor: string;
+}
+
 export interface MarketsResponse {
   markets: Market[];
   count: number;
   filters_applied?: string[];
   timestamp: string;
   cursor?: string;
+}
+
+export interface MarketResponse {
+  market: Market;
+}
+
+export interface EventResponse {
+  event: Market; // We can reuse the Market type, as it has 'title'
 }
 
 export interface WhaleAlertsData {
@@ -227,7 +249,7 @@ export interface MarketFilters {
 }
 
 export interface SortOptions {
-  field: 'volume' | 'last_update' | 'probability' | 'ticker';
+  field: 'volume' | 'last_update' | 'last_price' | 'ticker_symbol';
   direction: 'asc' | 'desc';
 }
 
