@@ -165,10 +165,7 @@ export function MarketCard({
         <div className="market-card-meta pt-3 border-t border-gray-100">
           <div className="flex items-center justify-between w-full text-xs text-neutral-500">
             <div className="flex items-center space-x-3">
-              <div className="flex items-center">
-                <ClockIcon className="w-3 h-3 mr-1" />
-                {market.cadence}
-              </div>
+
               
               {market.expiration_time && (
                 <div className="flex items-center">

@@ -18,8 +18,6 @@ export async function GET(request: Request) {
   try {
     const url = new URL(request.url);
     const params = new URLSearchParams(url.search);
-    
-    // Pass through query params like 'limit' from our frontend
     const limit = params.get('limit') || '100';
 
     const kalshiUrl = `${KALSHI_API_URL}?limit=${limit}`;
@@ -41,7 +39,6 @@ export async function GET(request: Request) {
     }
 
     const data = await apiResponse.json();
-
     return NextResponse.json(data, { headers: responseHeaders });
 
   } catch (error: any) {

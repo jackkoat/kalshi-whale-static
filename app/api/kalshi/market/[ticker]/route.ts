@@ -9,7 +9,6 @@ export async function GET(
   { params }: { params: { ticker: string } }
 ) {
   const ticker = params.ticker;
-
   const responseHeaders = {
     'Access-Control-Allow-Origin': '*',
     'Access-Control-Allow-Methods': 'GET, OPTIONS',
@@ -24,8 +23,6 @@ export async function GET(
   }
 
   try {
-    // This is the smart logic from your friend's repo.
-    // First, try to get it as a MARKET
     let apiResponse = await fetch(`${KALSHI_API_BASE}/markets/${ticker}`, {
       headers: { 'Accept': 'application/json' },
     });
@@ -35,7 +32,7 @@ export async function GET(
       return NextResponse.json(data, { headers: responseHeaders });
     }
 
-    // If that fails (status 404), it might be an EVENT ticker
+    // Fallback: If it's not a market, it might be an event.
     if (apiResponse.status === 404) {
       console.warn(`Market ticker ${ticker} not found, trying as event ticker...`);
       apiResponse = await fetch(`${KALSHI_API_BASE}/events/${ticker}`, {
@@ -48,7 +45,6 @@ export async function GET(
       }
     }
 
-    // If both attempts fail
     const errorText = await apiResponse.text();
     return NextResponse.json(
       { message: `Failed to fetch data for ticker ${ticker}`, error: errorText },
