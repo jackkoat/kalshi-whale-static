@@ -97,6 +97,8 @@ export function useAlignedMarkets() {
             trending: true,
             high_liquidity: true,
             recent: true,
+            yes_bid_dollars: alignedTrade.yes_bid_dollars,
+            no_bid_dollars: alignedTrade.no_bid_dollars,
           });
         } else {
           // Market already exists, just add to its volume

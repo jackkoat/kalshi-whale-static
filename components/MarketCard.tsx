@@ -110,7 +110,7 @@ export function MarketCard({
             </div>
             
             <p className="text-xs text-neutral-600 line-clamp-2">
-              {market.yes_sub_title || 'YES outcome'}
+              {market.yes_bid_dollars || 'YES outcome'}
             </p>
           </div>
 
@@ -140,7 +140,7 @@ export function MarketCard({
             </div>
             
             <p className="text-xs text-neutral-600 line-clamp-2">
-              {market.no_sub_title || 'NO outcome'}
+              {market.no_bid_dollars || 'NO outcome'}
             </p>
           </div>
         </div>

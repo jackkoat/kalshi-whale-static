@@ -23,6 +23,8 @@ export interface Market {
   expiration_time: string;
   open_time: string;
   close_time: string;
+  yes_bid_dollars: string;
+  no_bid_dollars: string;
 }
 
 export interface Trade {
