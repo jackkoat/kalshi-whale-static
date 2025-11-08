@@ -15,6 +15,7 @@ export interface Market {
   liquidity?: number;
   volume_millions?: number;
   ticker_symbol?: string;
+  title: string
 }
 
 export interface Outcome {
