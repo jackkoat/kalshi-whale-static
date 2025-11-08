@@ -1,4 +1,4 @@
-import type { Metadata } from 'next'
+import type { Metadata, Viewport } from 'next'
 import { Inter } from 'next/font/google'
 import { QueryProvider } from '@/lib/react-query'
 import '@/globals.css'
@@ -10,6 +10,7 @@ const inter = Inter({
 })
 
 export const metadata: Metadata = {
+  metadataBase: new URL('https://kalshiwhale.com'), // Add this to resolve OG/Twitter images
   title: 'KalshiWhale - Crypto Whale Intelligence Platform',
   description: 'Institutional-grade crypto intelligence platform for Kalshi Prediction Markets. Real-time whale detection, market microstructure analysis, and intelligent insights.',
   keywords: [
@@ -43,11 +44,6 @@ export const metadata: Metadata = {
     title: 'KalshiWhale - Crypto Whale Intelligence Platform',
     description: 'Real-time whale detection and market intelligence for Kalshi Prediction Markets',
   },
-  viewport: {
-    width: 'device-width',
-    initialScale: 1,
-    maximumScale: 1,
-  },
   robots: {
     index: true,
     follow: true,
@@ -59,6 +55,12 @@ export const metadata: Metadata = {
       'max-snippet': -1,
     },
   },
+}
+
+export const viewport: Viewport = {
+  width: 'device-width',
+  initialScale: 1,
+  maximumScale: 1,
 }
 
 export default function RootLayout({

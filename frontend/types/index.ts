@@ -181,7 +181,7 @@ export interface UIState {
     time_range: string;
     signal_strength: string;
   };
-  theme: 'light' | 'dark';
+  theme: 'light' | 'dark' | 'system';
   notifications: Notification[];
 }
 
@@ -209,7 +209,7 @@ export interface MarketFilters {
 }
 
 export interface SortOptions {
-  field: 'volume' | 'last_update' | 'probability' | 'ticker';
+  field: 'volume' | 'last_update' | 'ticker_symbol';
   direction: 'asc' | 'desc';
 }
 

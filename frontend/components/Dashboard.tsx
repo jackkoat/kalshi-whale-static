@@ -19,6 +19,7 @@ import {
   AdjustmentsHorizontalIcon,
   ChevronLeftIcon
 } from '@heroicons/react/24/outline'
+import Link from 'next/link'
 
 function Sidebar() {
   const { 
@@ -287,12 +288,9 @@ export function Dashboard() {
               </button>
               
               <div className="flex items-center space-x-2">
-                <div className="w-8 h-8 bg-gradient-to-br from-brand-green-primary to-brand-green-deep rounded-lg flex items-center justify-center">
-                  <span className="text-white font-bold text-sm">KW</span>
-                </div>
-                <h1 className="text-xl font-bold text-gradient">
-                  KalshiWhale
-                </h1>
+                <Link href="/" className="flex items-center gap-3 text-2xl font-extrabold text-brand-green-deep">
+                  <img src="/logo.png" alt="KalshiWhale Logo" className="w-32 h-32" />
+                </Link>
               </div>
             </div>
 
