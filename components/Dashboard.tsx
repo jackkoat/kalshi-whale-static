@@ -19,7 +19,6 @@ import {
   AdjustmentsHorizontalIcon,
   ChevronLeftIcon
 } from '@heroicons/react/24/outline'
-import Link from 'next/link'
 
 function Sidebar() {
   const { 
@@ -218,8 +217,8 @@ export function Dashboard() {
   }
 
   useEffect(() => {
-    if (marketsData?.data) {
-      useMarketStore.getState().setMarkets(marketsData.data)
+    if (marketsData?.markets) {
+      useMarketStore.getState().setMarkets(marketsData.markets)
     }
   }, [marketsData])
 
@@ -288,9 +287,12 @@ export function Dashboard() {
               </button>
               
               <div className="flex items-center space-x-2">
-                <Link href="/" className="flex items-center gap-3 text-2xl font-extrabold text-brand-green-deep">
-                  <img src="/logo.png" alt="KalshiWhale Logo" className="w-32 h-32" />
-                </Link>
+                <div className="w-8 h-8 bg-gradient-to-br from-brand-green-primary to-brand-green-deep rounded-lg flex items-center justify-center">
+                  <span className="text-white font-bold text-sm">KF</span>
+                </div>
+                <h1 className="text-xl font-bold text-gradient">
+                  KalshiFlow
+                </h1>
               </div>
             </div>
 
@@ -415,7 +417,7 @@ export function Dashboard() {
                       No markets found
                     </h3>
                     <p className="text-neutral-600">
-                      Try adjusting your filters to see more markets.
+                      Your API is working, but no crypto markets were found.
                     </p>
                   </div>
                 )}

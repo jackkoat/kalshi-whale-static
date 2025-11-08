@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { motion } from 'framer-motion'
 import { Market } from '../types'
 import { formatCurrency, formatRelativeTime, formatProbability, getMarketCategoryColor } from '../lib/utils'
@@ -19,19 +19,47 @@ interface MarketCardProps {
   showDetails?: boolean
 }
 
+function useEventDetails(eventTicker: string) {
+  const [data, setData] = useState<{ title: string; category: string } | null>(null);
+
+  useEffect(() => {
+    if (!eventTicker) return;
+
+    async function fetchDetails() {
+      try {
+        const res = await fetch(`/api/kalshi/event/${eventTicker}`);
+        if (!res.ok) return;
+        const eventData = await res.json();
+        setData(eventData);
+      } catch (error) {
+        console.warn(`Failed to lazy-load event details for ${eventTicker}`, error);
+      }
+    }
+    
+    fetchDetails();
+  }, [eventTicker]);
+
+  return data;
+}
+
 export function MarketCard({ 
   market, 
   onOutcomeClick, 
   className,
   showDetails = true 
 }: MarketCardProps) {
-  const [isHovered, setIsHovered] = useState(false)
+  const [isHovered, setIsHovered] = useState(false);
   
+  const eventDetails = useEventDetails(market.event_ticker);
+
   const yesProbability = (market.last_price || 0) / 100;
   const noProbability = 1 - yesProbability;
   
-  const categoryColor = getMarketCategoryColor(market.category || 'Crypto')
-  const volumeFormatted = formatCurrency(market.volume)
+  const displayTitle = eventDetails?.title || market.title;
+  const displayCategory = eventDetails?.category || market.category || 'Crypto';
+  
+  const categoryColor = getMarketCategoryColor(displayCategory);
+  const volumeFormatted = formatCurrency(market.volume);
 
   return (
     <motion.div
@@ -50,7 +78,7 @@ export function MarketCard({
         <div className="flex-1">
           <div className="flex items-center space-x-2 mb-2">
             <span className={cn('px-2 py-1 rounded-full text-xs font-medium', categoryColor)}>
-              {market.category || 'Crypto'}
+              {displayCategory}
             </span>
             {market.trending && (
               <span className="trending-badge">
@@ -61,7 +89,7 @@ export function MarketCard({
           </div>
           
           <h3 className="market-card-title">
-            {market.title}
+            {displayTitle}
           </h3>
         </div>
         
@@ -199,6 +227,10 @@ export function MarketCardCompact({
   className 
 }: MarketCardProps) {
   const yesProbability = (market.last_price || 0) / 100;
+  const eventDetails = useEventDetails(market.event_ticker);
+  
+  const displayTitle = eventDetails?.title || market.title;
+  const displayCategory = eventDetails?.category || market.category || 'Crypto';
 
   return (
     <motion.div
@@ -211,10 +243,10 @@ export function MarketCardCompact({
     >
       <div className="flex-1 min-w-0">
         <h4 className="text-sm font-medium text-neutral-900 truncate">
-          {market.title}
+          {displayTitle}
         </h4>
         <div className="flex items-center space-x-2 mt-1">
-          <span className="text-xs text-neutral-500">{market.category || 'Crypto'}</span>
+          <span className="text-xs text-neutral-500">{displayCategory}</span>
           <span className="text-xs text-neutral-400">•</span>
           <span className="text-xs text-neutral-500">
             {formatCurrency(market.volume)}

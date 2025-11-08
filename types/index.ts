@@ -10,12 +10,26 @@ export interface Market {
   trending: boolean;
   high_liquidity: boolean;
   recent: boolean;
-  status: 'open' | 'closed' | 'expired';
+  status: 'open' | 'closed' | 'expired' | 'active'; 
   expiry_date?: string;
   liquidity?: number;
   volume_millions?: number;
   ticker_symbol?: string;
-  title: string
+  title: string;
+  event_ticker: string;
+  last_price: number;
+  yes_sub_title: string;
+  no_sub_title: string;
+  expiration_time: string;
+  open_time: string;
+  close_time: string;
+}
+
+export interface Event {
+  ticker: string;
+  title: string;
+  category_name: string;
+  status: string;
 }
 
 export interface Outcome {
@@ -114,9 +128,12 @@ export interface ApiResponse<T> {
   message?: string;
 }
 
-export interface MarketsResponse extends ApiResponse<Market[]> {
+export interface MarketsResponse {
+  markets: Market[];
   count: number;
   filters_applied?: string[];
+  timestamp: string;
+  cursor?: string;
 }
 
 export interface WhaleAlertsData {
@@ -182,7 +199,7 @@ export interface UIState {
     time_range: string;
     signal_strength: string;
   };
-  theme: 'light' | 'dark' | 'system';
+  theme: 'light' | 'dark';
   notifications: Notification[];
 }
 
@@ -210,7 +227,7 @@ export interface MarketFilters {
 }
 
 export interface SortOptions {
-  field: 'volume' | 'last_update' | 'ticker_symbol';
+  field: 'volume' | 'last_update' | 'probability' | 'ticker';
   direction: 'asc' | 'desc';
 }
 
