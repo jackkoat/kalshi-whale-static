@@ -12,16 +12,17 @@ import {
   FireIcon,
   BellIcon,
   CogIcon,
+  SparklesIcon, 
 } from '@heroicons/react/24/outline'
 import { Sidebar } from './Sidebar' 
 import { MarketTab } from './MarketTab'
 import { WhaleTab } from './WhaleTab'
 import { AnalyticsTab } from './AnalyticsTab'
+import { SentimentTab } from './SentimentTab' 
 import Link from 'next/link'
 
-
 export function Dashboard() {
-  const [activeTab, setActiveTab] = useState<'markets' | 'whale' | 'analytics'>('markets')
+  const [activeTab, setActiveTab] = useState<'markets' | 'whale' | 'analytics' | 'sentiment'>('markets')
   
   const { activeSignals, addSignal } = useWhaleStore()
   const { sidebar_open, toggleSidebar, notifications, addNotification } = useUIStore()
@@ -186,6 +187,21 @@ export function Dashboard() {
               <FireIcon className="w-4 h-4" />
               <span>Whale Detection</span>
             </button>
+            
+            {/* ADD: Sentiment tab button */}
+            <button
+              onClick={() => setActiveTab('sentiment')}
+              className={cn(
+                'px-4 py-2 rounded-md text-sm font-medium transition-colors flex items-center space-x-1',
+                activeTab === 'sentiment'
+                  ? 'bg-white text-brand-green-primary shadow-sm'
+                  : 'text-neutral-600 hover:text-neutral-900'
+              )}
+            >
+              <SparklesIcon className="w-4 h-4" />
+              <span>Sentiment</span>
+            </button>
+            
             <button
               onClick={() => setActiveTab('analytics')}
               className={cn(
@@ -206,6 +222,11 @@ export function Dashboard() {
 
             {activeTab === 'whale' && (
               <WhaleTab />
+            )}
+
+            {/* ADD: Sentiment tab component */}
+            {activeTab === 'sentiment' && (
+              <SentimentTab />
             )}
 
             {activeTab === 'analytics' && (

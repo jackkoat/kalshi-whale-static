@@ -171,6 +171,10 @@ export function useAlignedMarkets() {
             recent: true,
             yes_bid_dollars: alignedTrade.yes_bid_dollars,
             no_bid_dollars: alignedTrade.no_bid_dollars,
+            volume_24h: alignedTrade.volume_24h,
+            previous_price: alignedTrade.previous_price,
+            yes_ask: alignedTrade.yes_ask,
+            yes_bid: alignedTrade.yes_bid
           });
         } else {
           // Market already exists

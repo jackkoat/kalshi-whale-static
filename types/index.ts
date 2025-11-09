@@ -25,6 +25,10 @@ export interface Market {
   close_time: string;
   yes_bid_dollars: string;
   no_bid_dollars: string;
+  volume_24h: number
+  previous_price: number
+  yes_ask: number
+  yes_bid: number
 }
 
 export interface Trade {
