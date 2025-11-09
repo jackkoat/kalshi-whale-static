@@ -1,10 +1,14 @@
 'use client'
 
-import { useMemo } from 'react'
-import { motion } from 'framer-motion'
+import { useMemo, useState } from 'react' // ADD: Import useState
+import { motion, AnimatePresence } from 'framer-motion' // ADD: Import AnimatePresence
 import { useMarkets } from '../lib/react-query'
 import { Market } from '@/types'
-import { ChartBarIcon } from '@heroicons/react/24/outline' 
+import { 
+  ChartBarIcon, // FIX: Replace GaugeIcon with ChartBarIcon (GaugeIcon not available)
+  InformationCircleIcon, // ADD: Import Info Icon
+  XMarkIcon // ADD: Import Close Icon
+} from '@heroicons/react/24/outline'
 
 /**
  * A helper component to render the sentiment gauge
@@ -71,6 +75,7 @@ const SentimentGauge = ({ score }: { score: number }) => {
  */
 export function SentimentTab() {
   const { data: marketsData, isLoading, isError } = useMarkets()
+  const [showInfo, setShowInfo] = useState(false) // ADD: State for info box
 
   // This is the core logic. It runs the calculation only when market data changes.
   const sentimentData = useMemo(() => {
@@ -174,10 +179,57 @@ export function SentimentTab() {
       transition={{ duration: 0.3 }}
       className="space-y-6"
     >
+      {/* ADD: Info Box */}
+      <AnimatePresence>
+        {showInfo && (
+          <motion.div
+            className="glass-card p-6 border-l-4 border-brand-green-primary relative"
+            initial={{ opacity: 0, y: -10 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -10 }}
+          >
+            <button
+              onClick={() => setShowInfo(false)}
+              className="absolute top-3 right-3 p-1 rounded-md text-neutral-400 hover:bg-gray-100"
+            >
+              <XMarkIcon className="w-5 h-5" />
+            </button>
+            <h4 className="font-semibold text-neutral-800 mb-2">
+              How to Read the Sentiment Index
+            </h4>
+            <ul className="list-disc list-inside space-y-1 text-sm text-neutral-600">
+              <li>
+                <strong>0-24 (Extreme Fear):</strong> Investors are overly worried.
+              </li>
+              <li>
+                <strong>25-49 (Fear):</strong> Investors are hesitant and selling.
+              </li>
+              <li>
+                <strong>50-74 (Greed):</strong> The market is bullish, FOMO may be setting in.
+              </li>
+              <li>
+                <strong>75-100 (Extreme Greed):</strong> Investors are overly greedy, a correction may be due.
+              </li>
+            </ul>
+          </motion.div>
+        )}
+      </AnimatePresence>
+      
+      {/* Main Gauge Card */}
       <div className="glass-card p-6 flex flex-col items-center">
-        <h3 className="text-lg font-semibold mb-4">
-          KalshiFlow Sentiment Index
-        </h3>
+        <div className="flex items-center justify-center relative w-full mb-4">
+          <h3 className="text-lg font-semibold">
+            KalshiFlow Sentiment Index
+          </h3>
+          {/* ADD: Info Icon Button */}
+          <button 
+            onClick={() => setShowInfo(!showInfo)}
+            className="text-neutral-400 hover:text-brand-green-primary p-1 absolute right-0"
+          >
+            <InformationCircleIcon className="w-6 h-6" />
+          </button>
+        </div>
+
         <SentimentGauge score={sentimentData.finalScore} />
         <motion.div
           className="text-4xl font-bold mt-4"
@@ -189,10 +241,11 @@ export function SentimentTab() {
         </motion.div>
         <p className="text-neutral-600 mt-2 text-center max-w-md">
           This is a custom index (0-100) that measures sentiment across all
-          Kalshi crypto markets based on momentum, spreads, and volume.
+          Kalshi crypto markets.
         </p>
       </div>
 
+      {/* Sub-metrics */}
       <div className="grid md:grid-cols-3 gap-6">
         <div className="glass-card p-6 text-center">
           <h4 className="text-sm font-medium text-neutral-500 mb-2">
