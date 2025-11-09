@@ -1,8 +1,24 @@
+// [File: jackkoat/kalshi-whale-static/kalshi-whale-static-ce6fa31b95bb04922b4ef890c9d7751204301a3d/app/api/kalshi/market/[ticker]/route.ts]
 import { NextResponse } from 'next/server';
 
 export const dynamic = 'force-dynamic';
 
 const KALSHI_API_BASE = 'https://api.elections.kalshi.com/trade-api/v2';
+
+const ALLOWED_TICKER_PREFIXES = [
+  'KXBTC',
+  'KXETH',
+  'KXSOL',
+  'KXCRYPTO', 
+  'KXBCH',
+  'KXADA',
+  'KXMATIC',
+  'KXDOT',
+  'KXLINK',
+  'KXLTC',
+  'KXXRP',
+];
+
 
 export async function GET(
   request: Request,
@@ -22,8 +38,19 @@ export async function GET(
     );
   }
 
+  const isAllowed = ALLOWED_TICKER_PREFIXES.some(prefix => 
+    ticker.startsWith(prefix)
+  );
+
+  if (!isAllowed) {
+    return NextResponse.json(
+      { message: `Ticker ${ticker} is not a relevant crypto market.` },
+      { status: 422, headers: responseHeaders } // 422 Unprocessable Entity
+    );
+  }
+
   try {
-    let apiResponse = await fetch(`${KALSHI_API_BASE}/markets/${ticker}`, {
+    const apiResponse = await fetch(`${KALSHI_API_BASE}/markets/${ticker}`, {
       headers: { 'Accept': 'application/json' },
     });
 
@@ -32,19 +59,7 @@ export async function GET(
       return NextResponse.json(data, { headers: responseHeaders });
     }
 
-    // Fallback: If it's not a market, it might be an event.
-    if (apiResponse.status === 404) {
-      console.warn(`Market ticker ${ticker} not found, trying as event ticker...`);
-      apiResponse = await fetch(`${KALSHI_API_BASE}/events/${ticker}`, {
-        headers: { 'Accept': 'application/json' },
-      });
-
-      if (apiResponse.ok) {
-        const data = await apiResponse.json();
-        return NextResponse.json(data, { headers: responseHeaders });
-      }
-    }
-
+    // We keep the logic from before (no event fallback).
     const errorText = await apiResponse.text();
     return NextResponse.json(
       { message: `Failed to fetch data for ticker ${ticker}`, error: errorText },

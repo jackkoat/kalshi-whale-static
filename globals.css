@@ -90,10 +90,12 @@
 
   .market-card-title {
     @apply text-lg font-semibold text-neutral-900 leading-tight;
+    @apply select-text;
   }
 
   .market-card-meta {
     @apply flex items-center space-x-2 text-sm text-neutral-500;
+    @apply select-text;
   }
 
   /* Whale Signal Cards */

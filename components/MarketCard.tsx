@@ -62,7 +62,6 @@ export function MarketCard({
               </span>
             )}
           </div>
-          <p>{market.ticker_symbol}</p>
           
           <h3 className="market-card-title">
             {market.title}
