@@ -19,6 +19,7 @@ import {
   AdjustmentsHorizontalIcon,
   ChevronLeftIcon
 } from '@heroicons/react/24/outline'
+import { SkeletonGrid } from './MarketCardSkeleton'
 
 function Sidebar() {
   const { 
@@ -161,8 +162,6 @@ export function Dashboard() {
   
   const { 
     filteredMarkets, 
-    loading: marketsLoading,
-    error: marketsError 
   } = useMarketStore()
   
   const { activeSignals, addSignal, markAsRead } = useWhaleStore()
@@ -177,6 +176,14 @@ export function Dashboard() {
   const { updateStatus } = useAppStore()
 
   const { data: marketsData } = useMarkets()
+
+   const { 
+    data: marketData, 
+    isLoading: marketsLoading, 
+    isError: marketsIsError,   
+    error: marketsError       
+  } = useMarkets()
+
   const { data: whaleData } = useWhaleAlerts()
 
   const { connect, disconnect, isConnected, lastMessage } = useWebSocket()
@@ -229,6 +236,61 @@ export function Dashboard() {
   }, [whaleData])
   
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
+
+  // Helper function to render market content cleanly
+  const renderMarketContent = () => {
+    // 1. Loading State
+    if (marketsLoading) {
+      return <SkeletonGrid />
+    }
+
+    // 2. Error State
+    if (marketsIsError) {
+      return (
+        <div className="text-center py-12">
+          <div className="text-red-600 mb-2">Error loading markets</div>
+          <div className="text-sm text-neutral-600">
+            {marketsError instanceof Error ? marketsError.message : String(marketsError)}
+          </div>
+        </div>
+      )
+    }
+
+    // 3. No Markets Found State (post-load)
+    if (filteredMarkets.length === 0) {
+      return (
+        <div className="text-center py-12">
+          <ChartBarIcon className="w-12 h-12 text-neutral-400 mx-auto mb-4" />
+          <h3 className="text-lg font-medium text-neutral-900 mb-2">
+            No markets found
+          </h3>
+          <p className="text-neutral-600">
+            Your API is working, but no crypto markets were found.
+          </p>
+        </div>
+      )
+    }
+
+    // 4. Success State
+    return (
+      <div className="data-grid">
+        {filteredMarkets.map((market) => (
+          <MarketCard
+            key={market.id}
+            market={market}
+            onOutcomeClick={(outcome, marketId) => {
+              addNotification({
+                type: 'info',
+                title: 'Bet Placed (Demo)',
+                message: `Bet ${outcome} on market ${marketId}`,
+                auto_close: true
+              })
+            }}
+          />
+        ))}
+      </div>
+    )
+  }
 
   return (
     <div className="min-h-screen bg-gray-50">

@@ -77,8 +77,8 @@ export function useAlignedMarkets() {
           // This is the first time we see this market, create its entry
           marketsMap.set(alignedTrade.ticker, {
             id: alignedTrade.market_id || alignedTrade.ticker,
-            question: alignedTrade.title || "Unknown Title",
-            title: alignedTrade.title || "Unknown Title",
+            question: alignedTrade.question || alignedTrade.title || "Unknown Title",
+            title: alignedTrade.question || alignedTrade.title || "Unknown Title",
             category: alignedTrade.category_name || "Crypto",
             ticker_symbol: alignedTrade.ticker,
             last_price: alignedTrade.price,
