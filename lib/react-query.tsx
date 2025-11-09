@@ -58,7 +58,7 @@ export function useAlignedMarkets() {
       
       let allTrades: any[] = [];
       let currentCursor: string | null = null;
-      const MAX_PAGES_TO_FETCH = 5; // Fetch 5 pages (5 * 1000 = 5000 trades)
+      const MAX_PAGES_TO_FETCH = 15; // Fetch 5 pages (5 * 1000 = 5000 trades)
 
       console.log('Starting paginated fetch for trades...');
 

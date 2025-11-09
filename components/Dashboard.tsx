@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useMemo } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { useMarkets, useWhaleAlerts, useWebSocket } from '../lib/react-query'
 import { useMarketStore, useWhaleStore, useUIStore, useAppStore } from '../store'
@@ -20,6 +20,13 @@ import {
   ChevronLeftIcon
 } from '@heroicons/react/24/outline'
 import { SkeletonGrid } from './MarketCardSkeleton'
+import {
+  Pagination,
+  PaginationContent,
+  PaginationItem,
+  PaginationNext,
+  PaginationPrevious,
+} from '@/components/ui/Pagination'
 
 function Sidebar() {
   const { 
@@ -159,6 +166,9 @@ function Sidebar() {
 
 export function Dashboard() {
   const [activeTab, setActiveTab] = useState<'markets' | 'whale' | 'analytics'>('markets')
+
+  const [currentPage, setCurrentPage] = useState(1)
+  const ITEMS_PER_PAGE = 8
   
   const { 
     filteredMarkets, 
@@ -234,6 +244,32 @@ export function Dashboard() {
       useWhaleStore.getState().setActiveSignals(whaleData.data.alerts || [])
     }
   }, [whaleData])
+
+  const { paginatedMarkets, totalPages } = useMemo(() => {
+    const total = filteredMarkets.length
+    const totalPages = Math.ceil(total / ITEMS_PER_PAGE)
+    
+    const startIndex = (currentPage - 1) * ITEMS_PER_PAGE
+    const endIndex = startIndex + ITEMS_PER_PAGE
+    
+    const paginatedMarkets = filteredMarkets.slice(startIndex, endIndex)
+    
+    return { paginatedMarkets, totalPages }
+  }, [filteredMarkets, currentPage])
+
+  // Pagination event handlers
+  const handleNextPage = () => {
+    setCurrentPage((prev) => Math.min(prev + 1, totalPages))
+  }
+
+  const handlePreviousPage = () => {
+    setCurrentPage((prev) => Math.max(prev - 1, 1))
+  }
+  
+  // Reset to page 1 if filters change
+  useEffect(() => {
+    setCurrentPage(1)
+  }, [useMarketStore.getState().filters])
   
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
 
@@ -273,8 +309,9 @@ export function Dashboard() {
 
     // 4. Success State
     return (
+    <>
       <div className="data-grid">
-        {filteredMarkets.map((market) => (
+        {paginatedMarkets.map((market) => (
           <MarketCard
             key={market.id}
             market={market}
@@ -289,7 +326,34 @@ export function Dashboard() {
           />
         ))}
       </div>
-    )
+      
+      {totalPages > 1 && (
+        <div className="mt-8">
+          <Pagination>
+            <PaginationContent>
+              <PaginationItem>
+                <PaginationPrevious
+                  onClick={handlePreviousPage}
+                  disabled={currentPage === 1}
+                />
+              </PaginationItem>
+              <PaginationItem>
+                <span className="text-sm font-medium px-4">
+                  Page {currentPage} of {totalPages}
+                </span>
+              </PaginationItem>
+              <PaginationItem>
+                <PaginationNext
+                  onClick={handleNextPage}
+                  disabled={currentPage === totalPages}
+                />
+              </PaginationItem>
+            </PaginationContent>
+          </Pagination>
+        </div>
+      )}
+    </>
+  )
   }
 
   return (
@@ -436,53 +500,7 @@ export function Dashboard() {
                 exit={{ opacity: 0, y: -20 }}
                 transition={{ duration: 0.3 }}
               >
-                {marketsLoading ? (
-                  <div className="grid data-grid gap-6">
-                    {[...Array(8)].map((_, i) => (
-                      <div key={i} className="glass-card p-6 animate-pulse">
-                        <div className="space-y-4">
-                          <div className="h-4 bg-gray-200 rounded w-3/4"></div>
-                          <div className="h-4 bg-gray-200 rounded w-1/2"></div>
-                          <div className="h-8 bg-gray-200 rounded w-full"></div>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                ) : marketsError ? (
-                  <div className="text-center py-12">
-                    <div className="text-red-600 mb-2">Error loading markets</div>
-                    <div className="text-sm text-neutral-600">{marketsError.toString()}</div>
-                  </div>
-                ) : (
-                  <div className="data-grid">
-                    {filteredMarkets.map((market) => (
-                      <MarketCard
-                        key={market.id}
-                        market={market}
-                        onOutcomeClick={(outcome, marketId) => {
-                          addNotification({
-                            type: 'info',
-                            title: 'Bet Placed (Demo)',
-                            message: `Bet ${outcome} on market ${marketId}`,
-                            auto_close: true
-                          })
-                        }}
-                      />
-                    ))}
-                  </div>
-                )}
-                
-                {filteredMarkets.length === 0 && !marketsLoading && (
-                  <div className="text-center py-12">
-                    <ChartBarIcon className="w-12 h-12 text-neutral-400 mx-auto mb-4" />
-                    <h3 className="text-lg font-medium text-neutral-900 mb-2">
-                      No markets found
-                    </h3>
-                    <p className="text-neutral-600">
-                      Your API is working, but no crypto markets were found.
-                    </p>
-                  </div>
-                )}
+                {renderMarketContent()}
               </motion.div>
             )}
 
