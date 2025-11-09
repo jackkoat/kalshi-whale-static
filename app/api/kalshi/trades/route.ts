@@ -19,8 +19,14 @@ export async function GET(request: Request) {
     const url = new URL(request.url);
     const params = new URLSearchParams(url.search);
     const limit = params.get('limit') || '100';
+    
+    const cursor = params.get('cursor');
 
-    const kalshiUrl = `${KALSHI_API_URL}?limit=${limit}`;
+    let kalshiUrl = `${KALSHI_API_URL}?limit=${limit}`;
+
+    if (cursor) {
+      kalshiUrl += `&cursor=${cursor}`;
+    }
 
     const apiResponse = await fetch(kalshiUrl, {
       method: 'GET',
