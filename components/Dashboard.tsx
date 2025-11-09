@@ -1,200 +1,31 @@
 'use client'
 
-import { useState, useEffect, useMemo } from 'react'
+import { useState, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { useMarkets, useWhaleAlerts, useWebSocket } from '../lib/react-query'
+import { useWebSocket } from '../lib/react-query'
 import { useMarketStore, useWhaleStore, useUIStore, useAppStore } from '../store'
-import { MarketCard } from './MarketCard'
-import { WhaleSignalFeed, LiveSignalIndicator } from './WhaleSignalCard'
-import { cn, formatNumber } from '../lib/utils'
+import { LiveSignalIndicator } from './WhaleSignalCard'
+import { cn } from '../lib/utils'
 import {
   Bars3Icon,
   XMarkIcon,
-  ChartBarIcon,
   FireIcon,
-  CurrencyDollarIcon,
-  ArrowTrendingUpIcon,
   BellIcon,
   CogIcon,
-  AdjustmentsHorizontalIcon,
-  ChevronLeftIcon
 } from '@heroicons/react/24/outline'
-import { SkeletonGrid } from './MarketCardSkeleton'
-import {
-  Pagination,
-  PaginationContent,
-  PaginationItem,
-  PaginationNext,
-  PaginationPrevious,
-} from '@/components/ui/Pagination'
+import { Sidebar } from './Sidebar' 
+import { MarketTab } from './MarketTab'
+import { WhaleTab } from './WhaleTab'
+import { AnalyticsTab } from './AnalyticsTab'
 
-function Sidebar() {
-  const { 
-    sidebar_open, 
-    toggleSidebar 
-  } = useUIStore()
-  
-  const { activeSignals, markAsRead } = useWhaleStore()
-  const { filteredMarkets } = useMarketStore()
-  const [showFilters, setShowFilters] = useState(false)
-  const { filters, setFilters } = useMarketStore()
-
-  const metrics = {
-    totalMarkets: filteredMarkets.length,
-    activeWhales: activeSignals.length,
-    totalVolume: filteredMarkets.reduce((sum, m) => sum + m.volume, 0),
-    avgLiquidity: filteredMarkets.reduce((sum, m) => sum + (m.volume || 0), 0) / Math.max(filteredMarkets.length, 1)
-  }
-  
-  const sidebarVariants = {
-    open: { width: 320, x: 0 },
-    closed: { width: 0, x: -320 }
-  }
-
-  return (
-    <motion.aside
-      className="fixed inset-y-0 left-0 z-30 bg-white border-r border-gray-200 overflow-y-auto"
-      initial="closed"
-      animate={sidebar_open ? "open" : "closed"}
-      variants={sidebarVariants}
-      transition={{ duration: 0.3, ease: "easeInOut" }}
-    >
-      <div className="p-6" style={{width: 320}}>
-        <div className="flex items-center justify-between mb-6">
-          <h2 className="text-lg font-semibold text-neutral-900">
-            Intelligence Panel
-          </h2>
-          <button
-            onClick={toggleSidebar}
-            className="p-1 rounded-md text-neutral-400 hover:text-neutral-600"
-          >
-            <ChevronLeftIcon className="w-5 h-5" />
-          </button>
-        </div>
-
-        <div className="grid grid-cols-2 gap-4 mb-6">
-          <div className="glass-card p-4 text-center">
-            <div className="text-2xl font-bold text-brand-green-primary">
-              {formatNumber(metrics.totalMarkets)}
-            </div>
-            <div className="text-sm text-neutral-600">Markets</div>
-          </div>
-          
-          <div className="glass-card p-4 text-center">
-            <div className="text-2xl font-bold text-signal-whale">
-              {metrics.activeWhales}
-            </div>
-            <div className="text-sm text-neutral-600">Whales</div>
-          </div>
-          
-          <div className="glass-card p-4 text-center">
-            <div className="text-lg font-bold text-signal-liquidity">
-              ${formatNumber(metrics.totalVolume / 1000000)}M
-            </div>
-            <div className="text-sm text-neutral-600">Volume</div>
-          </div>
-          
-          <div className="glass-card p-4 text-center">
-            <div className="text-lg font-bold text-signal-volume">
-              ${formatNumber(metrics.avgLiquidity / 1000000)}M
-            </div>
-            <div className="text-sm text-neutral-600">Avg Liq.</div>
-          </div>
-        </div>
-
-        <div className="mb-6">
-          <button
-            onClick={() => setShowFilters(!showFilters)}
-            className="w-full flex items-center justify-between p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors"
-          >
-            <span className="font-medium text-neutral-700">Filters</span>
-            <AdjustmentsHorizontalIcon className="w-5 h-5 text-neutral-500" />
-          </button>
-          
-          <AnimatePresence>
-            {showFilters && (
-              <motion.div
-                className="mt-3 space-y-3"
-                initial={{ opacity: 0, height: 0 }}
-                animate={{ opacity: 1, height: 'auto' }}
-                exit={{ opacity: 0, height: 0 }}
-              >
-                <select
-                  value={filters.category || ''}
-                  onChange={(e) => setFilters({ category: e.target.value })}
-                  className="w-full p-2 border border-gray-200 rounded-md text-sm focus:ring-brand-green-primary focus:border-brand-green-primary"
-                >
-                  <option value="">All Categories</option>
-                  <option value="Crypto">Crypto</option>
-                  <option value="Politics">Politics</option>
-                  <option value="Economics">Economics</option>
-                </select>
-                
-                <label className="flex items-center space-x-2">
-                  <input
-                    type="checkbox"
-                    checked={filters.trending_only || false}
-                    onChange={(e) => setFilters({ trending_only: e.target.checked })}
-                    className="rounded text-brand-green-primary focus:ring-brand-green-primary/50"
-                  />
-                  <span className="text-sm text-neutral-700">Trending only</span>
-                </label>
-                
-                <label className="flex items-center space-x-2">
-                  <input
-                    type="checkbox"
-                    checked={filters.high_volume_only || false}
-                    onChange={(e) => setFilters({ high_volume_only: e.target.checked })}
-                    className="rounded text-brand-green-primary focus:ring-brand-green-primary/50"
-                  />
-                  <span className="text-sm text-neutral-700">High volume only</span>
-                </label>
-              </motion.div>
-            )}
-          </AnimatePresence>
-        </div>
-
-        <WhaleSignalFeed
-          signals={activeSignals.slice(0, 10)}
-          onMarkAsRead={markAsRead}
-          maxHeight="300px"
-        />
-      </div>
-    </motion.aside>
-  )
-}
 
 export function Dashboard() {
   const [activeTab, setActiveTab] = useState<'markets' | 'whale' | 'analytics'>('markets')
-
-  const [currentPage, setCurrentPage] = useState(1)
-  const ITEMS_PER_PAGE = 8
   
-  const { 
-    filteredMarkets, 
-  } = useMarketStore()
-  
-  const { activeSignals, addSignal, markAsRead } = useWhaleStore()
-  
-  const { 
-    sidebar_open, 
-    toggleSidebar,
-    notifications,
-    addNotification 
-  } = useUIStore()
-  
+  const { activeSignals, addSignal } = useWhaleStore()
+  const { sidebar_open, toggleSidebar, notifications, addNotification } = useUIStore()
   const { updateStatus } = useAppStore()
-
-  const { data: marketsData } = useMarkets()
-
-   const { 
-    data: marketData, 
-    isLoading: marketsLoading, 
-    isError: marketsIsError,   
-    error: marketsError       
-  } = useMarkets()
-
-  const { data: whaleData } = useWhaleAlerts()
+  const { lastUpdate } = useMarketStore() 
 
   const { connect, disconnect, isConnected, lastMessage } = useWebSocket()
 
@@ -232,129 +63,8 @@ export function Dashboard() {
         break
     }
   }
-
-  useEffect(() => {
-    if (marketsData?.markets) {
-      useMarketStore.getState().setMarkets(marketsData.markets)
-    }
-  }, [marketsData])
-
-  useEffect(() => {
-    if (whaleData?.data) {
-      useWhaleStore.getState().setActiveSignals(whaleData.data.alerts || [])
-    }
-  }, [whaleData])
-
-  const { paginatedMarkets, totalPages } = useMemo(() => {
-    const total = filteredMarkets.length
-    const totalPages = Math.ceil(total / ITEMS_PER_PAGE)
-    
-    const startIndex = (currentPage - 1) * ITEMS_PER_PAGE
-    const endIndex = startIndex + ITEMS_PER_PAGE
-    
-    const paginatedMarkets = filteredMarkets.slice(startIndex, endIndex)
-    
-    return { paginatedMarkets, totalPages }
-  }, [filteredMarkets, currentPage])
-
-  // Pagination event handlers
-  const handleNextPage = () => {
-    setCurrentPage((prev) => Math.min(prev + 1, totalPages))
-  }
-
-  const handlePreviousPage = () => {
-    setCurrentPage((prev) => Math.max(prev - 1, 1))
-  }
-  
-  // Reset to page 1 if filters change
-  useEffect(() => {
-    setCurrentPage(1)
-  }, [useMarketStore.getState().filters])
   
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
-
-  // Helper function to render market content cleanly
-  const renderMarketContent = () => {
-    // 1. Loading State
-    if (marketsLoading) {
-      return <SkeletonGrid />
-    }
-
-    // 2. Error State
-    if (marketsIsError) {
-      return (
-        <div className="text-center py-12">
-          <div className="text-red-600 mb-2">Error loading markets</div>
-          <div className="text-sm text-neutral-600">
-            {marketsError instanceof Error ? marketsError.message : String(marketsError)}
-          </div>
-        </div>
-      )
-    }
-
-    // 3. No Markets Found State (post-load)
-    if (filteredMarkets.length === 0) {
-      return (
-        <div className="text-center py-12">
-          <ChartBarIcon className="w-12 h-12 text-neutral-400 mx-auto mb-4" />
-          <h3 className="text-lg font-medium text-neutral-900 mb-2">
-            No markets found
-          </h3>
-          <p className="text-neutral-600">
-            Your API is working, but no crypto markets were found.
-          </p>
-        </div>
-      )
-    }
-
-    // 4. Success State
-    return (
-    <>
-      <div className="data-grid">
-        {paginatedMarkets.map((market) => (
-          <MarketCard
-            key={market.id}
-            market={market}
-            onOutcomeClick={(outcome, marketId) => {
-              addNotification({
-                type: 'info',
-                title: 'Bet Placed (Demo)',
-                message: `Bet ${outcome} on market ${marketId}`,
-                auto_close: true
-              })
-            }}
-          />
-        ))}
-      </div>
-      
-      {totalPages > 1 && (
-        <div className="mt-8">
-          <Pagination>
-            <PaginationContent>
-              <PaginationItem>
-                <PaginationPrevious
-                  onClick={handlePreviousPage}
-                  disabled={currentPage === 1}
-                />
-              </PaginationItem>
-              <PaginationItem>
-                <span className="text-sm font-medium px-4">
-                  Page {currentPage} of {totalPages}
-                </span>
-              </PaginationItem>
-              <PaginationItem>
-                <PaginationNext
-                  onClick={handleNextPage}
-                  disabled={currentPage === totalPages}
-                />
-              </PaginationItem>
-            </PaginationContent>
-          </Pagination>
-        </div>
-      )}
-    </>
-  )
-  }
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -428,7 +138,7 @@ export function Dashboard() {
                 count={activeSignals.length} 
               />
               <div className="text-sm text-neutral-500">
-                Last update: {marketsData?.timestamp ? new Date(marketsData.timestamp).toLocaleTimeString() : '...'}
+                Last update: {lastUpdate ? new Date(lastUpdate).toLocaleTimeString() : '...'}
               </div>
             </div>
 
@@ -493,81 +203,15 @@ export function Dashboard() {
 
           <AnimatePresence mode="wait">
             {activeTab === 'markets' && (
-              <motion.div
-                key="markets"
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -20 }}
-                transition={{ duration: 0.3 }}
-              >
-                {renderMarketContent()}
-              </motion.div>
+              <MarketTab />
             )}
 
             {activeTab === 'whale' && (
-              <motion.div
-                key="whale"
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -20 }}
-                transition={{ duration: 0.3 }}
-                className="space-y-6"
-              >
-                <div className="glass-card p-6">
-                  <h3 className="text-lg font-semibold mb-4">
-                    Whale Detection Intelligence
-                  </h3>
-                  <p className="text-neutral-600 mb-4">
-                    Advanced algorithms detect institutional flow patterns across Kalshi markets.
-                  </p>
-                  
-                  <div className="grid md:grid-cols-2 gap-4">
-                    <div className="bg-amber-50 border border-amber-200 rounded-lg p-4">
-                      <h4 className="font-medium text-amber-800 mb-2">
-                        Active Signals: {activeSignals.length}
-                      </h4>
-                      <p className="text-sm text-amber-700">
-                        Real-time whale activity monitoring
-                      </p>
-                    </div>
-                    
-                    <div className="bg-green-50 border border-green-200 rounded-lg p-4">
-                      <h4 className="font-medium text-green-800 mb-2">
-                        Detection Confidence
-                      </h4>
-                      <p className="text-sm text-green-700">
-                        Advanced microstructure analysis
-                      </p>
-                    </div>
-                  </div>
-                </div>
-                
-                <WhaleSignalFeed
-                  signals={activeSignals}
-                  onMarkAsRead={markAsRead}
-                  maxHeight="600px"
-                />
-              </motion.div>
+              <WhaleTab />
             )}
 
             {activeTab === 'analytics' && (
-              <motion.div
-                key="analytics"
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -20 }}
-                transition={{ duration: 0.3 }}
-              >
-                <div className="text-center py-12">
-                  <ArrowTrendingUpIcon className="w-12 h-12 text-neutral-400 mx-auto mb-4" />
-                  <h3 className="text-lg font-medium text-neutral-900 mb-2">
-                    Advanced Analytics
-                  </h3>
-                  <p className="text-neutral-600">
-                    Detailed market microstructure analysis and pattern recognition coming soon.
-                  </p>
-                </div>
-              </motion.div>
+              <AnalyticsTab />
             )}
           </AnimatePresence>
         </div>

@@ -309,3 +309,10 @@ export interface AppConfig {
     notifications_enabled: boolean;
   };
 }
+
+export interface AIAnalysis {
+  insight: string;
+  confidence: 'high' | 'medium' | 'low';
+  summary: string;
+  actionable: boolean;
+}

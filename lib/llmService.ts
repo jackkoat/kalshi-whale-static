@@ -1,13 +1,6 @@
-import { Market } from '@/types';
+import { AIAnalysis, Market } from '@/types';
 
 const OPENROUTER_API_URL = 'https://openrouter.ai/api/v1/chat/completions';
-
-export interface AIAnalysis {
-  insight: string;
-  confidence: 'high' | 'medium' | 'low';
-  summary: string;
-  actionable: boolean;
-}
 
 export async function getAIAnalysis(
   market: Market,
