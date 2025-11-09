@@ -11,7 +11,8 @@ export async function getAIAnalysis(
     Your job is to analyze a *single* market's JSON data and provide a deep, actionable insight.
     
     RULES:
-    - Your analysis must be concise (2-3 sentences).
+    - Your analysis must be detailed (7-8 sentences).
+    - You MUST explicitly reference numerical data from the market JSON (like 'volume_24h', 'open_interest', and the price change from 'previous_price' to 'last_price') to support your insight.
     - You must detect "whale activity" (unusual volume, odds shifts, etc.).
     - You must output a valid JSON object in the following format:
     {

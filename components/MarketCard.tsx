@@ -85,6 +85,7 @@ export function MarketCard({
 
       <div className="space-y-3">
         <div className="grid grid-cols-2 gap-3">
+          {/* YES part */}
           <div className="space-y-2">
             <div className="flex items-center justify-between">
               <span className="text-sm font-medium text-neutral-700">YES</span>
@@ -113,8 +114,12 @@ export function MarketCard({
             <p className="text-xs text-neutral-600 line-clamp-2">
               {market.yes_bid_dollars || 'YES outcome'}
             </p>
+            <p className="text-xs text-neutral-600 line-clamp-2">
+              {market.yes_sub_title || 'YES outcome'}
+            </p>
           </div>
 
+          {/* NO part */}
           <div className="space-y-2">
             <div className="flex items-center justify-between">
               <span className="text-sm font-medium text-neutral-700">NO</span>
@@ -142,6 +147,9 @@ export function MarketCard({
             
             <p className="text-xs text-neutral-600 line-clamp-2">
               {market.no_bid_dollars || 'NO outcome'}
+            </p>
+            <p className="text-xs text-neutral-600 line-clamp-2">
+              {market.no_sub_title || 'YES outcome'}
             </p>
           </div>
         </div>
