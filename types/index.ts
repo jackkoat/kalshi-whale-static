@@ -223,7 +223,7 @@ export interface UIState {
     time_range: string;
     signal_strength: string;
   };
-  theme: 'light' | 'dark';
+  theme: 'light' | 'dark' | 'system';
   notifications: Notification[];
 }
 
