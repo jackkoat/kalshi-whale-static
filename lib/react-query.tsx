@@ -30,26 +30,32 @@ const fetcher = async (url: string) => {
   return res.json()
 }
 
-// This is the new, aligned, high-performance hook.
+const cryptoKeywords = [
+    "btc", "eth", "crypto", "bitcoin", "ethereum", 
+    "sol", "solana", "bch", "ada", "cardano", "matic", 
+    "polygon", "dot", "polkadot", "link", "chainlink",
+    "ltc", "litecoin", "xrp"
+];
+
 export function useAlignedMarkets() {
   return useQuery({
     queryKey: ['alignedMarkets'],
+
+    staleTime: 1000 * 60 * 5, // 5 minutes
+    refetchOnWindowFocus: false, 
+
     queryFn: async () => {
-      // 1. Fetch the "Just In" trades (Channel 1)
       const tradeData = await fetcher('/api/kalshi/trades?limit=1000');
       const trades = tradeData.trades || [];
 
-      // 2. Find all unique market tickers from those trades
       const marketTickers = [...new Set(trades.map((trade: any) => trade.ticker))];
 
-      // 3. Fetch the "Alignment" data for each unique ticker
       const marketInfoPromises = marketTickers.map(ticker => 
         fetcher(`/api/kalshi/market/${ticker}`)
       );
       
       const marketInfoResults = await Promise.allSettled(marketInfoPromises);
 
-      // 4. Create a "cache" (a simple map) for easy lookup
       const marketInfoCache = new Map();
       marketInfoResults.forEach((result, index) => {
         if (result.status === 'fulfilled') {
@@ -59,30 +65,42 @@ export function useAlignedMarkets() {
         }
       });
 
-      // 5. "Align" the data: Combine trades with market titles
       const alignedMarkets = trades.map((trade: any) => {
         const marketDetails = marketInfoCache.get(trade.ticker);
         return {
-          ...trade, // The trade data (price, quantity, time)
-          ...marketDetails, // The clean data (title, category)
-          id: trade.id || `${trade.ticker}-${trade.created_time}`
+          ...trade, 
+          ...marketDetails, 
+          id: trade.trade_id || `${trade.ticker}-${trade.created_time}` 
         };
       });
 
-      // 6. Group trades into "Markets" for our dashboard
       const marketsMap = new Map<string, Market>();
       
       for (const alignedTrade of alignedMarkets) {
+        
+        
+        const tradeNotionalValue = (alignedTrade.count || 0) * (alignedTrade.price || 0);
+
+        const marketNotionalVolume24h = ((alignedTrade.volume_24h || 0) * (alignedTrade.last_price || 0)) / 100;
+
+        const isWhaleTrade = (tradeNotionalValue > 500) && 
+                           (marketNotionalVolume24h > 0) && // Avoid divide by zero
+                           ((tradeNotionalValue / marketNotionalVolume24h) > 0.10);
+
         if (!marketsMap.has(alignedTrade.ticker)) {
-          // This is the first time we see this market, create its entry
           marketsMap.set(alignedTrade.ticker, {
             id: alignedTrade.market_id || alignedTrade.ticker,
-            question: alignedTrade.question || alignedTrade.title || "Unknown Title",
-            title: alignedTrade.question || alignedTrade.title || "Unknown Title",
+
+            question: alignedTrade.title || "Unknown Title",
+            title: alignedTrade.title || "Unknown Title",
+            
             category: alignedTrade.category_name || "Crypto",
             ticker_symbol: alignedTrade.ticker,
-            last_price: alignedTrade.price,
-            volume: alignedTrade.volume,
+            
+            last_price: alignedTrade.last_price, 
+            
+            volume: alignedTrade.volume, 
+            
             last_update: alignedTrade.created_time,
             expiration_time: alignedTrade.expiration_time || '',
             yes_sub_title: alignedTrade.yes_sub_title || 'YES',
@@ -93,27 +111,30 @@ export function useAlignedMarkets() {
             open_time: alignedTrade.open_time || '',
             close_time: alignedTrade.close_time || '',
             outcomes: [], 
-            high_volume: (alignedTrade.price * alignedTrade.quantity) > 100000, // Real whale check
-            trending: true,
-            high_liquidity: true,
+            high_volume: isWhaleTrade, 
+            trending: true, // We can adjust this later
+            high_liquidity: true, // We can adjust this later
             recent: true,
             yes_bid_dollars: alignedTrade.yes_bid_dollars,
             no_bid_dollars: alignedTrade.no_bid_dollars,
           });
         } else {
-          // Market already exists, just add to its volume
+          // Market already exists
           const existingMarket = marketsMap.get(alignedTrade.ticker)!;
-          existingMarket.volume += alignedTrade.quantity;
-          if (existingMarket.volume > 100000) {
+          
+          existingMarket.volume += (alignedTrade.count || 0); 
+          
+          if (isWhaleTrade) {
             existingMarket.high_volume = true;
           }
+          
+          existingMarket.last_price = alignedTrade.last_price;
+          existingMarket.last_update = alignedTrade.created_time;
         }
       }
 
       const finalMarkets = Array.from(marketsMap.values());
       
-      // Filter *again* for crypto keywords, just to be safe
-      const cryptoKeywords = ["btc", "eth", "crypto", "bitcoin", "ethereum", "sol", "bch"];
       const filteredCryptoMarkets = finalMarkets.filter(market => {
         const ticker = market.ticker_symbol?.toLowerCase() || '';
         const title = market.title?.toLowerCase() || '';
@@ -129,12 +150,10 @@ export function useAlignedMarkets() {
   });
 }
 
-// We still keep these original hook names so our Dashboard component doesn't break
 export function useMarkets() {
   return useAlignedMarkets();
 }
 
-// This hook now uses the *real* "high_volume" flag we just calculated
 export function useWhaleAlerts() {
   const { data: marketData, ...rest } = useAlignedMarkets();
 
@@ -159,7 +178,7 @@ export function useWhaleAlerts() {
       whale_signals_count: whaleAlerts.length,
       high_volume_count: whaleAlerts.length,
       detection_types: { volume_surge: true, odds_flip: false, order_book_shift: false, high_volume: true },
-      thresholds: { volume_surge_multiplier: 3, odds_change_percent: 15, order_book_change_percent: 25, minimum_volume: 100000 }
+      thresholds: { volume_surge_multiplier: 3, odds_change_percent: 15, order_book_change_percent: 25, minimum_volume: 100000 } // This is now just metadata
     },
     timestamp: new Date().toISOString(),
     status: 'success'
