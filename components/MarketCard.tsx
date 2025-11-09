@@ -34,7 +34,8 @@ export function MarketCard({
   const displayCategory = market.category || 'Crypto';
   
   const categoryColor = getMarketCategoryColor(displayCategory);
-  const volumeFormatted = formatCurrency(market.volume);
+  const notionalVolume = ((market.volume || 0) * (market.last_price || 0)) / 100;
+  const volumeFormatted = formatCurrency(notionalVolume);
 
   return (
     <motion.div

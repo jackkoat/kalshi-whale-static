@@ -89,11 +89,11 @@ export function AnalyticsTab() {
 
       {/* Column 2: Analysis Result */}
       <div className="glass-card p-6">
-        <h3 className="text-lg font-semibold mb-4">AI Analysis (Channel 2)</h3>
+        <h3 className="text-lg font-semibold mb-4">AI Analysis</h3>
         {!selectedMarket && !isLoadingAnalysis && (
           <div className="text-center py-12 text-neutral-500">
             <p>Select a market from the left to get an AI-powered 
-               analysis from Mistral.
+               analysis from MarketMind AI.
             </p>
           </div>
         )}
@@ -101,7 +101,7 @@ export function AnalyticsTab() {
         {isLoadingAnalysis && (
           <div className="text-center py-12 text-neutral-500">
             <p className="animate-pulse font-medium">
-              Asking Mistral for insights...
+              Asking MarketMind AI for insights...
             </p>
             <p className="text-sm">This may take a moment.</p>
           </div>

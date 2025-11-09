@@ -42,7 +42,7 @@ export function WhaleTab() {
       <>
         <div className="glass-card p-6 mb-6">
           <h3 className="text-lg font-semibold mb-4">
-            Whale Detection Intelligence (Channel 1)
+            Whale Detection Intelligence
           </h3>
           <p className="text-neutral-600 mb-4">
             Displaying markets where a single trade was `&gt;` $500 AND `&gt;` 10% of 

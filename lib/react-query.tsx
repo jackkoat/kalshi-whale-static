@@ -136,64 +136,87 @@ export function useAlignedMarkets() {
       const marketsMap = new Map<string, Market>();
       
       for (const alignedTrade of alignedMarkets) {
-        
-        // If this trade's ticker wasn't in the cache, it's non-crypto. Skip it.
-        if (!marketInfoCache.has(alignedTrade.ticker)) {
-          continue;
-        }
-
-        // --- 4. RELATIVE WHALE FORMULA ---
-        const tradeNotionalValue = (alignedTrade.count || 0) * (alignedTrade.price || 0);
-        const marketNotionalVolume24h = ((alignedTrade.volume_24h || 0) * (alignedTrade.last_price || 0)) / 100;
-
-        const isWhaleTrade = (tradeNotionalValue > 500) && 
-                           (marketNotionalVolume24h > 0) &&
-                           ((tradeNotionalValue / marketNotionalVolume24h) > 0.10);
-
-        if (!marketsMap.has(alignedTrade.ticker)) {
-          // This is the first time we see this market, create its entry
-          marketsMap.set(alignedTrade.ticker, {
-            id: alignedTrade.market_id || alignedTrade.ticker,
-
-            // --- 5. TITLE FIX ---
-            question: alignedTrade.title || "Unknown Title",
-            title: alignedTrade.title || "Unknown Title",
-            
-            category: alignedTrade.category_name || "Crypto",
-            ticker_symbol: alignedTrade.ticker,
-            last_price: alignedTrade.last_price, 
-            volume: alignedTrade.volume, 
-            last_update: alignedTrade.created_time,
-            expiration_time: alignedTrade.expiration_time || '',
-            yes_sub_title: alignedTrade.yes_sub_title || 'YES',
-            no_sub_title: alignedTrade.no_sub_title || 'NO',
-            cadence: alignedTrade.frequency || 'N/A',
-            status: alignedTrade.status || 'open',
-            event_ticker: alignedTrade.event_ticker || '',
-            open_time: alignedTrade.open_time || '',
-            close_time: alignedTrade.close_time || '',
-            outcomes: [], 
-            high_volume: isWhaleTrade, 
-            trending: true, 
-            high_liquidity: true, 
-            recent: true,
-            yes_bid_dollars: alignedTrade.yes_bid_dollars,
-            no_bid_dollars: alignedTrade.no_bid_dollars,
-          });
-        } else {
-          // Market already exists
-          const existingMarket = marketsMap.get(alignedTrade.ticker)!;
-          
-          existingMarket.volume += (alignedTrade.count || 0); 
-          
-          if (isWhaleTrade) {
-            existingMarket.high_volume = true;
-          }
-          
-          existingMarket.last_price = alignedTrade.last_price;
-          existingMarket.last_update = alignedTrade.created_time;
-        }
+  
+      // If this trade's ticker wasn't in the cache, it's non-crypto. Skip it.
+      if (!marketInfoCache.has(alignedTrade.ticker)) {
+        continue;
       }
+
+      // --- 4. NEW HYBRID WHALE FORMULA ---
+      
+      // (a) Notional value of this single trade (in dollars)
+      const tradeNotionalValue = (alignedTrade.count || 0) * (alignedTrade.price || 0);
+
+      // (b) Notional 24h volume of the entire market (in dollars)
+      const marketNotionalVolume24h = ((alignedTrade.volume_24h || 0) * (alignedTrade.last_price || 0)) / 100;
+
+      // (c) The NEW Whale Logic:
+      // A trade is a whale if it's a "relative" whale OR an "absolute" whale
+      
+      // Logic 1: Relative Whale (for small markets)
+      // Is trade > $500 AND is it > 10% of 24h market value?
+      const isRelativeWhale = (tradeNotionalValue > 500) && 
+                              (marketNotionalVolume24h > 0) &&
+                              ((tradeNotionalValue / marketNotionalVolume24h) > 0.10);
+
+      // Logic 2: Absolute Whale (for large markets)
+      // Is the trade simply > $20,000?
+      const isAbsoluteWhale = (tradeNotionalValue > 20000); 
+
+      const isWhaleTrade = isRelativeWhale || isAbsoluteWhale;
+      
+      // --- END OF NEW LOGIC ---
+
+      if (!marketsMap.has(alignedTrade.ticker)) {
+        // This is the first time we see this market, create its entry
+        marketsMap.set(alignedTrade.ticker, {
+          id: alignedTrade.market_id || alignedTrade.ticker,
+          question: alignedTrade.title || "Unknown Title",
+          title: alignedTrade.title || "Unknown Title",
+          category: alignedTrade.category_name || "Crypto",
+          ticker_symbol: alignedTrade.ticker,
+          
+          // Store the market's price (in cents)
+          last_price: alignedTrade.last_price, 
+          
+          // Store the market's total volume (in contracts)
+          volume: alignedTrade.volume, 
+          
+          last_update: alignedTrade.created_time,
+          expiration_time: alignedTrade.expiration_time || '',
+          yes_sub_title: alignedTrade.yes_sub_title || 'YES',
+          no_sub_title: alignedTrade.no_sub_title || 'NO',
+          cadence: alignedTrade.frequency || 'N/A',
+          status: alignedTrade.status || 'open',
+          event_ticker: alignedTrade.event_ticker || '',
+          open_time: alignedTrade.open_time || '',
+          close_time: alignedTrade.close_time || '',
+          outcomes: [], 
+          high_volume: isWhaleTrade, 
+          trending: true, 
+          high_liquidity: true, 
+          recent: true,
+          yes_bid_dollars: alignedTrade.yes_bid_dollars,
+          no_bid_dollars: alignedTrade.no_bid_dollars,
+        });
+      } else {
+        // Market already exists
+        const existingMarket = marketsMap.get(alignedTrade.ticker)!;
+        
+        // --- BUG FIX ---
+        // DO NOT add trade count to total volume.
+        // Just update the total volume to the latest value.
+        existingMarket.volume = alignedTrade.volume; 
+        // --- END BUG FIX ---
+        
+        if (isWhaleTrade) {
+          existingMarket.high_volume = true;
+        }
+        
+        existingMarket.last_price = alignedTrade.last_price;
+        existingMarket.last_update = alignedTrade.created_time;
+      }
+    }
 
       const finalMarkets = Array.from(marketsMap.values());
       
